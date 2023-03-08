@@ -1,7 +1,5 @@
 'use strict';
 
-//import { PlugBoard, M4 } from './enigma.mjs';
-
 /*const canvas = document.getElementById('myCanvas');
 const context = canvas.getContext('2d');
 let phase = 0;
@@ -19,8 +17,7 @@ setInterval(() => {
     context.translate(300, 0);
     for (let i = 0; i < 26; ++i) {
         context.fillText(
-            //String.fromCharCode('A'.charCodeAt() + i),
-            WHEEL1.pass(String.fromCharCode('A'.charCodeAt() + i)),
+            String.fromCharCode('A'.charCodeAt() + i),
             100 * Math.cos(2 * Math.PI / 26 * i + phase),
             100 * Math.sin(2 * Math.PI / 26 * i + phase)
         );
