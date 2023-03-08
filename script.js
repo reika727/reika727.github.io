@@ -9,7 +9,7 @@ class Mod26 {
         return Mod26.mod(n - m);
     }
     static isCongruent(n, m) {
-        return Mod26.sub(n, m) == 0;
+        return Mod26.sub(n, m) === 0;
     }
 }
 
