@@ -106,32 +106,32 @@ class AbstractEnigma {
 }
 
 class EnigmaI extends AbstractEnigma {
-    static get WHEEL_I() { return new Wheel('EKMFLGDQVZNTOWYHXUSPAIBRCJ', 'Q') }
-    static get WHEEL_II() { return new Wheel('AJDKSIRUXBLHWTMCQGZNPYFVOE', 'E') }
-    static get WHEEL_III() { return new Wheel('BDFHJLCPRTXVZNYEIWGAKMUSQO', 'V') }
-    static get WHEEL_IV() { return new Wheel('ESOVPZJAYQUIRHXLNFTGKDCMWB', 'J') }
-    static get WHEEL_V() { return new Wheel('VZBRGITYUPSDNHLXAWMJQOFECK', 'Z') }
-    static get REFLECTOR_A() { return new Reflector('EJMZALYXVBWFCRQUONTSPIKHGD') }
-    static get REFLECTOR_B() { return new Reflector('YRUHQSLDPXNGOKMIEBFZCWVJAT') }
-    static get REFLECTOR_C() { return new Reflector('FVPJIAOYEDRZXWGCTKUQSBNMHL') }
+    static get wheelI() { return new Wheel('EKMFLGDQVZNTOWYHXUSPAIBRCJ', 'Q') }
+    static get wheelII() { return new Wheel('AJDKSIRUXBLHWTMCQGZNPYFVOE', 'E') }
+    static get whellIII() { return new Wheel('BDFHJLCPRTXVZNYEIWGAKMUSQO', 'V') }
+    static get wheelIV() { return new Wheel('ESOVPZJAYQUIRHXLNFTGKDCMWB', 'J') }
+    static get wheelV() { return new Wheel('VZBRGITYUPSDNHLXAWMJQOFECK', 'Z') }
+    static get reflectorA() { return new Reflector('EJMZALYXVBWFCRQUONTSPIKHGD') }
+    static get reflectorB() { return new Reflector('YRUHQSLDPXNGOKMIEBFZCWVJAT') }
+    static get reflectorC() { return new Reflector('FVPJIAOYEDRZXWGCTKUQSBNMHL') }
     constructor(plugBoard, wheel1, wheel2, wheel3, reflector, ringSetting, rotationSetting) {
         super(plugBoard, [wheel1, wheel2, wheel3], reflector, ringSetting, rotationSetting);
     }
 }
 
 class M4 extends AbstractEnigma {
-    static get WHEEL_I() { return EnigmaI.WHEEL_I }
-    static get WHEEL_II() { return EnigmaI.WHEEL_II }
-    static get WHEEL_III() { return EnigmaI.WHEEL_III }
-    static get WHEEL_IV() { return EnigmaI.WHEEL_IV }
-    static get WHEEL_V() { return EnigmaI.WHEEL_V }
-    static get WHEEL_VI() { return new Wheel('JPGVOUMFYQBENHZRDKASXLICTW', 'Z', 'M') }
-    static get WHEEL_VII() { return new Wheel('NZJHGRCXMYSWBOUFAIVLPEKQDT', 'Z', 'M') }
-    static get WHEEL_VIII() { return new Wheel('FKQHTLXOCBJSPDZRAMEWNIUYGV', 'Z', 'M') }
-    static get WHEEL_B() { return new Wheel('LEYJVCNIXWPBQMDRTAKZGFUHOS') }
-    static get WHEEL_G() { return new Wheel('FSOKANUERHMBTIYCWLQPZXVGJD') }
-    static get REFLECTOR_B() { return new Reflector('ENKQAUYWJICOPBLMDXZVFTHRGS') }
-    static get REFLECTOR_C() { return new Reflector('RDOBJNTKVEHMLFCWZAXGYIPSUQ') }
+    static get wheelI() { return EnigmaI.wheelI }
+    static get wheelII() { return EnigmaI.wheelII }
+    static get wheelIII() { return EnigmaI.whellIII }
+    static get wheelIV() { return EnigmaI.wheelIV }
+    static get wheelV() { return EnigmaI.wheelV }
+    static get wheelVI() { return new Wheel('JPGVOUMFYQBENHZRDKASXLICTW', 'Z', 'M') }
+    static get wheelVII() { return new Wheel('NZJHGRCXMYSWBOUFAIVLPEKQDT', 'Z', 'M') }
+    static get wheelVIII() { return new Wheel('FKQHTLXOCBJSPDZRAMEWNIUYGV', 'Z', 'M') }
+    static get wheelBeta() { return new Wheel('LEYJVCNIXWPBQMDRTAKZGFUHOS') }
+    static get wheelGumma() { return new Wheel('FSOKANUERHMBTIYCWLQPZXVGJD') }
+    static get reflectorB() { return new Reflector('ENKQAUYWJICOPBLMDXZVFTHRGS') }
+    static get reflectorC() { return new Reflector('RDOBJNTKVEHMLFCWZAXGYIPSUQ') }
     constructor(plugBoard, wheel1, wheel2, wheel3, additionalWheel, reflector, ringSetting, rotationSetting) {
         additionalWheel.rotateRing(ringSetting[3].charCodeAt() - 'A'.charCodeAt());
         additionalWheel.rotate(rotationSetting[3].charCodeAt() - 'A'.charCodeAt());
@@ -152,11 +152,11 @@ class M4 extends AbstractEnigma {
 console.log(
     new M4(
         new PlugBoard(['A', 'T'], ['B', 'L'], ['D', 'F'], ['G', 'J'], ['H', 'M'], ['N', 'W'], ['O', 'P'], ['Q', 'Y'], ['R', 'Z'], ['V', 'X']),
-        M4.WHEEL_I,
-        M4.WHEEL_IV,
-        M4.WHEEL_II,
-        M4.WHEEL_B,
-        M4.REFLECTOR_B,
+        M4.wheelI,
+        M4.wheelIV,
+        M4.wheelII,
+        M4.wheelBeta,
+        M4.reflectorB,
         'VAAA',
         'ANJV'
     ).decrypt(
@@ -167,11 +167,11 @@ console.log(
 console.log(
     new M4(
         new PlugBoard(['A', 'T'], ['C', 'L'], ['D', 'H'], ['E', 'P'], ['F', 'G'], ['I', 'O'], ['J', 'N'], ['K', 'Q'], ['M', 'U'], ['R', 'X']),
-        M4.WHEEL_I,
-        M4.WHEEL_IV,
-        M4.WHEEL_II,
-        M4.WHEEL_B,
-        M4.REFLECTOR_B,
+        M4.wheelI,
+        M4.wheelIV,
+        M4.wheelII,
+        M4.wheelBeta,
+        M4.reflectorB,
         'VNAA',
         'FSCM'
     ).decrypt(
@@ -182,11 +182,11 @@ console.log(
 console.log(
     new M4(
         new PlugBoard(['B', 'Q'], ['C', 'R'], ['D', 'I'], ['E', 'J'], ['K', 'W'], ['M', 'T'], ['O', 'S'], ['P', 'X'], ['U', 'Z'], ['G', 'H']),
-        M4.WHEEL_III,
-        M4.WHEEL_I,
-        M4.WHEEL_VI,
-        M4.WHEEL_B,
-        M4.REFLECTOR_B,
+        M4.wheelIII,
+        M4.wheelI,
+        M4.wheelVI,
+        M4.wheelBeta,
+        M4.reflectorB,
         'GTZZ',
         'LHBN'
     ).decrypt(
