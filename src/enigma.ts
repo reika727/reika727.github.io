@@ -154,8 +154,8 @@ class M4 extends AbstractEnigma {
         ringSetting: string,
         rotationSetting: string
     ) {
-        additionalWheel.rotateRing(ringSetting[3].charCodeAt(0) - 'A'.charCodeAt(0));
-        additionalWheel.rotate(rotationSetting[3].charCodeAt(0) - 'A'.charCodeAt(0));
+        additionalWheel.rotateRing(ringSetting.charCodeAt(3) - 'A'.charCodeAt(0));
+        additionalWheel.rotate(rotationSetting.charCodeAt(3) - 'A'.charCodeAt(0));
         super(
             plugBoard,
             [wheel1, wheel2, wheel3],
