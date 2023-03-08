@@ -70,7 +70,7 @@ class Wheel extends AbstractWheel {
 class Reflector extends AbstractWheel {
 }
 
-class AbstructEnigma {
+class AbstractEnigma {
     constructor(plugBoard, wheels, reflector, ringSetting, rotationSetting) {
         this.plugBoard = plugBoard;
         this.wheels = wheels;
@@ -105,7 +105,7 @@ class AbstructEnigma {
     }
 }
 
-class EnigmaI extends AbstructEnigma {
+class EnigmaI extends AbstractEnigma {
     static get WHEEL_I() { return new Wheel('EKMFLGDQVZNTOWYHXUSPAIBRCJ', 'Q') }
     static get WHEEL_II() { return new Wheel('AJDKSIRUXBLHWTMCQGZNPYFVOE', 'E') }
     static get WHEEL_III() { return new Wheel('BDFHJLCPRTXVZNYEIWGAKMUSQO', 'V') }
@@ -119,7 +119,7 @@ class EnigmaI extends AbstructEnigma {
     }
 }
 
-class M4 extends AbstructEnigma {
+class M4 extends AbstractEnigma {
     static get WHEEL_I() { return EnigmaI.WHEEL_I }
     static get WHEEL_II() { return EnigmaI.WHEEL_II }
     static get WHEEL_III() { return EnigmaI.WHEEL_III }
