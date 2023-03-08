@@ -51,8 +51,8 @@ class Wheel extends AbstractWheel {
         this.rotationOffset = 0;
         this.turnOverOffsets = turnOverChars.map(v => v.charCodeAt() - 'A'.charCodeAt());
     }
-    ringRotated(inc) {
-        return Object.assign(this, {rotationOffset : this.rotationOffset + inc});
+    rotateRing(inc) {
+        this.rotationOffset += inc;
     }
     rotate(inc = 1) {
         this.rotationOffset -= inc;
@@ -73,8 +73,9 @@ class Reflector extends AbstractWheel {
 class AbstructEnigma {
     constructor(plugBoard, wheels, reflector, ringSetting, rotationSetting) {
         this.plugBoard = plugBoard;
-        this.wheels = wheels.map((v, i) => v.ringRotated(ringSetting.charCodeAt(i) - 'A'.charCodeAt()));
+        this.wheels = wheels;
         this.reflector = reflector;
+        wheels.forEach((v, i) => v.rotateRing(ringSetting.charCodeAt(i) - 'A'.charCodeAt()));
         wheels.forEach((v, i) => v.rotate(rotationSetting.charCodeAt(i) - 'A'.charCodeAt()));
     }
     encrypt(string) {
@@ -132,7 +133,7 @@ class M4 extends AbstructEnigma {
     static get REFLECTOR_B() { return new Reflector('ENKQAUYWJICOPBLMDXZVFTHRGS') }
     static get REFLECTOR_C() { return new Reflector('RDOBJNTKVEHMLFCWZAXGYIPSUQ') }
     constructor(plugBoard, wheel1, wheel2, wheel3, additionalWheel, reflector, ringSetting, rotationSetting) {
-        additionalWheel = additionalWheel.ringRotated(ringSetting[3].charCodeAt() - 'A'.charCodeAt());
+        additionalWheel.rotateRing(ringSetting[3].charCodeAt() - 'A'.charCodeAt());
         additionalWheel.rotate(rotationSetting[3].charCodeAt() - 'A'.charCodeAt());
         super(
             plugBoard,
