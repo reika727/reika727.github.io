@@ -1,3 +1,5 @@
+'use strict';
+
 class Mod26 {
     static mod(n) {
         return (n % 26 + 26) % 26;
