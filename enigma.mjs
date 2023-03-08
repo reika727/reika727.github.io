@@ -1,5 +1,7 @@
 'use strict';
 
+export { PlugBoard, Wheel, Reflector, EnigmaI, M4 };
+
 class Mod26 {
     static mod(n) {
         return (n % 26 + 26) % 26;
@@ -150,75 +152,3 @@ class M4 extends AbstractEnigma {
         );
     }
 }
-
-console.log(
-    new M4(
-        new PlugBoard(['A', 'T'], ['B', 'L'], ['D', 'F'], ['G', 'J'], ['H', 'M'], ['N', 'W'], ['O', 'P'], ['Q', 'Y'], ['R', 'Z'], ['V', 'X']),
-        M4.wheelI,
-        M4.wheelIV,
-        M4.wheelII,
-        M4.wheelBeta,
-        M4.reflectorB,
-        'VAAA',
-        'ANJV'
-    ).decrypt(
-        'NCZWVUSXPNYMINHZXMQXSFWXWLKJAHSHNMCOCCAKUQPMKCSMHKSEINJUSBLKIOSXCKUBHMLLXCSJUSRRDVKOHULXWCCBGVLIYXEOAHXRHKKFVDREWEZLXOBAFGYUJQUKGRTVUKAMEURBVEKSUHHVOYHABCJWMAKLFKLMYFVNRIZRVVRTKOFDANJMOLBGFFLEOPRGTFLVRHOWOPBEKVWMUQFMPWPARMFHAGKXIIBG'
-    )
-);
-
-console.log(
-    new M4(
-        new PlugBoard(['A', 'T'], ['C', 'L'], ['D', 'H'], ['E', 'P'], ['F', 'G'], ['I', 'O'], ['J', 'N'], ['K', 'Q'], ['M', 'U'], ['R', 'X']),
-        M4.wheelI,
-        M4.wheelIV,
-        M4.wheelII,
-        M4.wheelBeta,
-        M4.reflectorB,
-        'VNAA',
-        'FSCM'
-    ).decrypt(
-        'TMKFNWZXFFIIYXUTIHWMDHXIFZEQVKDVMQSWBQNDYOZFTIWMJHXHYRPACZUGRREMVPANWXGTKTHNRLVHKZPGMNMVSECVCKHOINPLHHPVPXKMBHOKCCPDPEVXVVHOZZQBIYIEOUSEZNHJKWHYDAGTXDJDJKJPKCSDSUZTQCXJDVLPAMGQKKSHPHVKSVPCBUWZFIZPFUUP'
-    )
-);
-
-console.log(
-    new M4(
-        new PlugBoard(['B', 'Q'], ['C', 'R'], ['D', 'I'], ['E', 'J'], ['K', 'W'], ['M', 'T'], ['O', 'S'], ['P', 'X'], ['U', 'Z'], ['G', 'H']),
-        M4.wheelIII,
-        M4.wheelI,
-        M4.wheelVI,
-        M4.wheelBeta,
-        M4.reflectorB,
-        'GTZZ',
-        'LHBN'
-    ).decrypt(
-        'HCEYZTCSOPUPPZDICQRDLWXXFACTTJMBRDVCJJMMZRPYIKHZAWGLYXWTMJPQUEFSZBOTVRLALZXWVXTSLFFFAUDQFBWRRYAPSBOWJMKLDUYUPFUQDOWVHAHCDWAUARSWTKOFVOYFPUFHVZFDGGPOOVGRMBPXXZCANKMONFHXPCKHJZBUMXJWXKAUODXZUCVCXPFT'
-    )
-);
-
-/*const canvas = document.getElementById('myCanvas');
-const context = canvas.getContext('2d');
-let phase = 0;
-setInterval(() => {
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    context.save();
-    context.translate(200, 200);
-    for (let i = 0; i < 26; ++i) {
-        context.fillText(
-            String.fromCharCode('A'.charCodeAt() + i),
-            100 * Math.cos(2 * Math.PI / 26 * i + phase),
-            100 * Math.sin(2 * Math.PI / 26 * i + phase)
-        );
-    }
-    context.translate(300, 0);
-    for (let i = 0; i < 26; ++i) {
-        context.fillText(
-            //String.fromCharCode('A'.charCodeAt() + i),
-            WHEEL1.pass(String.fromCharCode('A'.charCodeAt() + i)),
-            100 * Math.cos(2 * Math.PI / 26 * i + phase),
-            100 * Math.sin(2 * Math.PI / 26 * i + phase)
-        );
-    }
-    context.restore();
-    phase += 0.01;
-}, 25);*/
