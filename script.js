@@ -108,32 +108,32 @@ class AbstractEnigma {
 }
 
 class EnigmaI extends AbstractEnigma {
-    static get wheelI() { return new Wheel('EKMFLGDQVZNTOWYHXUSPAIBRCJ', 'Q') }
-    static get wheelII() { return new Wheel('AJDKSIRUXBLHWTMCQGZNPYFVOE', 'E') }
-    static get whellIII() { return new Wheel('BDFHJLCPRTXVZNYEIWGAKMUSQO', 'V') }
-    static get wheelIV() { return new Wheel('ESOVPZJAYQUIRHXLNFTGKDCMWB', 'J') }
-    static get wheelV() { return new Wheel('VZBRGITYUPSDNHLXAWMJQOFECK', 'Z') }
-    static get reflectorA() { return new Reflector('EJMZALYXVBWFCRQUONTSPIKHGD') }
-    static get reflectorB() { return new Reflector('YRUHQSLDPXNGOKMIEBFZCWVJAT') }
-    static get reflectorC() { return new Reflector('FVPJIAOYEDRZXWGCTKUQSBNMHL') }
+    static get wheelI() { return new Wheel('EKMFLGDQVZNTOWYHXUSPAIBRCJ', 'Q'); }
+    static get wheelII() { return new Wheel('AJDKSIRUXBLHWTMCQGZNPYFVOE', 'E'); }
+    static get whellIII() { return new Wheel('BDFHJLCPRTXVZNYEIWGAKMUSQO', 'V'); }
+    static get wheelIV() { return new Wheel('ESOVPZJAYQUIRHXLNFTGKDCMWB', 'J'); }
+    static get wheelV() { return new Wheel('VZBRGITYUPSDNHLXAWMJQOFECK', 'Z'); }
+    static get reflectorA() { return new Reflector('EJMZALYXVBWFCRQUONTSPIKHGD'); }
+    static get reflectorB() { return new Reflector('YRUHQSLDPXNGOKMIEBFZCWVJAT'); }
+    static get reflectorC() { return new Reflector('FVPJIAOYEDRZXWGCTKUQSBNMHL'); }
     constructor(plugBoard, wheel1, wheel2, wheel3, reflector, ringSetting, rotationSetting) {
         super(plugBoard, [wheel1, wheel2, wheel3], reflector, ringSetting, rotationSetting);
     }
 }
 
 class M4 extends AbstractEnigma {
-    static get wheelI() { return EnigmaI.wheelI }
-    static get wheelII() { return EnigmaI.wheelII }
-    static get wheelIII() { return EnigmaI.whellIII }
-    static get wheelIV() { return EnigmaI.wheelIV }
-    static get wheelV() { return EnigmaI.wheelV }
-    static get wheelVI() { return new Wheel('JPGVOUMFYQBENHZRDKASXLICTW', 'Z', 'M') }
-    static get wheelVII() { return new Wheel('NZJHGRCXMYSWBOUFAIVLPEKQDT', 'Z', 'M') }
-    static get wheelVIII() { return new Wheel('FKQHTLXOCBJSPDZRAMEWNIUYGV', 'Z', 'M') }
-    static get wheelBeta() { return new Wheel('LEYJVCNIXWPBQMDRTAKZGFUHOS') }
-    static get wheelGumma() { return new Wheel('FSOKANUERHMBTIYCWLQPZXVGJD') }
-    static get reflectorB() { return new Reflector('ENKQAUYWJICOPBLMDXZVFTHRGS') }
-    static get reflectorC() { return new Reflector('RDOBJNTKVEHMLFCWZAXGYIPSUQ') }
+    static get wheelI() { return EnigmaI.wheelI; }
+    static get wheelII() { return EnigmaI.wheelII; }
+    static get wheelIII() { return EnigmaI.whellIII; }
+    static get wheelIV() { return EnigmaI.wheelIV; }
+    static get wheelV() { return EnigmaI.wheelV; }
+    static get wheelVI() { return new Wheel('JPGVOUMFYQBENHZRDKASXLICTW', 'Z', 'M'); }
+    static get wheelVII() { return new Wheel('NZJHGRCXMYSWBOUFAIVLPEKQDT', 'Z', 'M'); }
+    static get wheelVIII() { return new Wheel('FKQHTLXOCBJSPDZRAMEWNIUYGV', 'Z', 'M'); }
+    static get wheelBeta() { return new Wheel('LEYJVCNIXWPBQMDRTAKZGFUHOS'); }
+    static get wheelGumma() { return new Wheel('FSOKANUERHMBTIYCWLQPZXVGJD'); }
+    static get reflectorB() { return new Reflector('ENKQAUYWJICOPBLMDXZVFTHRGS'); }
+    static get reflectorC() { return new Reflector('RDOBJNTKVEHMLFCWZAXGYIPSUQ'); }
     constructor(plugBoard, wheel1, wheel2, wheel3, additionalWheel, reflector, ringSetting, rotationSetting) {
         additionalWheel.rotateRing(ringSetting[3].charCodeAt() - 'A'.charCodeAt());
         additionalWheel.rotate(rotationSetting[3].charCodeAt() - 'A'.charCodeAt());
