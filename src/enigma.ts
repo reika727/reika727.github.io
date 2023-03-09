@@ -19,6 +19,7 @@ class Mod26 {
 
 class PlugBoard {
     private _exchangeTable = [...Array(26).keys()];
+    get exchangeTable() { return this._exchangeTable; }
     constructor(...pairs: [string, string][]) {
         pairs.forEach(
             ([c1, c2]) => {
@@ -53,6 +54,7 @@ abstract class AbstractWheel {
 class Wheel extends AbstractWheel {
     private _rotationOffset = 0;
     private _turnOverOffsets: number[];
+    get turnOverOffsets() { return this._turnOverOffsets; }
     constructor(offsetTableStr: string, ...turnOverChars: string[]) {
         super(offsetTableStr);
         this._turnOverOffsets = turnOverChars.map(v => v.charCodeAt(0) - 'A'.charCodeAt(0));
@@ -80,6 +82,9 @@ abstract class AbstractEnigma {
     protected _plugBoard: PlugBoard;
     protected _wheels: Wheel[];
     protected _reflector: Reflector;
+    get plugBoard() { return this._plugBoard; }
+    get wheels() { return this._wheels; }
+    get reflector() { return this._reflector; }
     constructor(plugBoard: PlugBoard, wheels: Wheel[], reflector: Reflector, ringSetting: string, rotationSetting: string) {
         this._plugBoard = plugBoard;
         this._wheels = wheels;
