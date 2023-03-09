@@ -18,58 +18,58 @@ class Mod26 {
 }
 
 class PlugBoard {
-    private exchangeTable = [...Array(26).keys()];
+    private _exchangeTable = [...Array(26).keys()];
     constructor(...pairs: [string, string][]) {
         pairs.forEach(
             ([c1, c2]) => {
                 const idx1 = c1.charCodeAt(0) - 'A'.charCodeAt(0);
                 const idx2 = c2.charCodeAt(0) - 'A'.charCodeAt(0);
-                [this.exchangeTable[idx1], this.exchangeTable[idx2]] = [this.exchangeTable[idx2], this.exchangeTable[idx1]];
+                [this._exchangeTable[idx1], this._exchangeTable[idx2]] = [this._exchangeTable[idx2], this._exchangeTable[idx1]];
             }
         );
     }
     pass(n: number) {
-        return this.exchangeTable[n];
+        return this._exchangeTable[n];
     }
 }
 
 abstract class AbstractWheel {
-    protected offsetTable: number[];
-    protected reverseOffsetTable = Array(26);
+    protected _offsetTable: number[];
+    protected _reverseOffsetTable = Array(26);
     constructor(offsetTableStr: string) {
-        this.offsetTable = [...offsetTableStr].map((v, i) =>  v.charCodeAt(0) - ('A'.charCodeAt(0) + i));
+        this._offsetTable = [...offsetTableStr].map((v, i) =>  v.charCodeAt(0) - ('A'.charCodeAt(0) + i));
         for (let i = 0; i < 26; ++i) {
-            this.reverseOffsetTable[Mod26.add(i, this.offsetTable[i])] = -this.offsetTable[i];
+            this._reverseOffsetTable[Mod26.add(i, this._offsetTable[i])] = -this._offsetTable[i];
         }
     }
     passInward(n: number) {
-        return Mod26.add(n, this.offsetTable[n]);
+        return Mod26.add(n, this._offsetTable[n]);
     }
     passOutward(n: number) {
-        return Mod26.add(n, this.reverseOffsetTable[n]);
+        return Mod26.add(n, this._reverseOffsetTable[n]);
     }
 }
 
 class Wheel extends AbstractWheel {
-    private rotationOffset = 0;
-    private turnOverOffsets: number[];
+    private _rotationOffset = 0;
+    private _turnOverOffsets: number[];
     constructor(offsetTableStr: string, ...turnOverChars: string[]) {
         super(offsetTableStr);
-        this.turnOverOffsets = turnOverChars.map(v => v.charCodeAt(0) - 'A'.charCodeAt(0));
+        this._turnOverOffsets = turnOverChars.map(v => v.charCodeAt(0) - 'A'.charCodeAt(0));
     }
     rotateRing(inc: number) {
-        this.rotationOffset += inc;
+        this._rotationOffset += inc;
     }
     rotate(inc = 1) {
-        this.rotationOffset -= inc;
-        this.turnOverOffsets = this.turnOverOffsets.map(v => v - inc);
-        return this.turnOverOffsets.some(v => Mod26.isCongruent(v, -1));
+        this._rotationOffset -= inc;
+        this._turnOverOffsets = this._turnOverOffsets.map(v => v - inc);
+        return this._turnOverOffsets.some(v => Mod26.isCongruent(v, -1));
     }
     override passInward(n: number) {
-        return Mod26.add(n, this.offsetTable[Mod26.sub(n, this.rotationOffset)]);
+        return Mod26.add(n, this._offsetTable[Mod26.sub(n, this._rotationOffset)]);
     }
     override passOutward(n: number) {
-        return Mod26.add(n, this.reverseOffsetTable[Mod26.sub(n, this.rotationOffset)]);
+        return Mod26.add(n, this._reverseOffsetTable[Mod26.sub(n, this._rotationOffset)]);
     }
 }
 
@@ -77,31 +77,31 @@ class Reflector extends AbstractWheel {
 }
 
 abstract class AbstractEnigma {
-    protected plugBoard: PlugBoard;
-    protected wheels: Wheel[];
-    protected reflector: Reflector;
+    protected _plugBoard: PlugBoard;
+    protected _wheels: Wheel[];
+    protected _reflector: Reflector;
     constructor(plugBoard: PlugBoard, wheels: Wheel[], reflector: Reflector, ringSetting: string, rotationSetting: string) {
-        this.plugBoard = plugBoard;
-        this.wheels = wheels;
-        this.reflector = reflector;
+        this._plugBoard = plugBoard;
+        this._wheels = wheels;
+        this._reflector = reflector;
         wheels.forEach((v, i) => v.rotateRing(ringSetting.charCodeAt(i) - 'A'.charCodeAt(0)));
         wheels.forEach((v, i) => v.rotate(rotationSetting.charCodeAt(i) - 'A'.charCodeAt(0)));
     }
     encrypt(str: string) {
         return [...str].map(char => {
-            for (const w of this.wheels) {
+            for (const w of this._wheels) {
                 if (!w.rotate()) {
                     break;
                 }
             }
             return String.fromCharCode('A'.charCodeAt(0) +
-                this.plugBoard.pass(
-                    this.wheels.reduceRight(
+                this._plugBoard.pass(
+                    this._wheels.reduceRight(
                         (acc, cur) => cur.passOutward(acc),
-                        this.reflector.passOutward(
-                            this.wheels.reduce(
+                        this._reflector.passOutward(
+                            this._wheels.reduce(
                                 (acc, cur) => cur.passInward(acc),
-                                this.plugBoard.pass(char.charCodeAt(0) - 'A'.charCodeAt(0))
+                                this._plugBoard.pass(char.charCodeAt(0) - 'A'.charCodeAt(0))
                             )
                         )
                     )
