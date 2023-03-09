@@ -39,9 +39,7 @@ abstract class AbstractWheel {
     protected _reverseOffsetTable = Array(26);
     constructor(offsetTableStr: string) {
         this._offsetTable = [...offsetTableStr].map((v, i) =>  v.charCodeAt(0) - ('A'.charCodeAt(0) + i));
-        for (let i = 0; i < 26; ++i) {
-            this._reverseOffsetTable[Mod26.add(i, this._offsetTable[i])] = -this._offsetTable[i];
-        }
+        this._offsetTable.forEach((v, i) => this._reverseOffsetTable[Mod26.add(i, v)] = -v);
     }
     passInward(n: number) {
         return Mod26.add(n, this._offsetTable[n]);
