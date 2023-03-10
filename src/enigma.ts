@@ -29,9 +29,6 @@ class PlugBoard {
             }
         );
     }
-    pass(n: number) {
-        return this._exchangeTable[n];
-    }
 }
 
 abstract class AbstractWheel {
@@ -98,17 +95,17 @@ abstract class AbstractEnigma {
                 }
             }
             return String.fromCharCode('A'.charCodeAt(0) +
-                this._plugBoard.pass(
+                this._plugBoard.exchangeTable[
                     this._wheels.reduceRight(
                         (acc, cur) => cur.passOutward(acc),
                         this._reflector.passOutward(
                             this._wheels.reduce(
                                 (acc, cur) => cur.passInward(acc),
-                                this._plugBoard.pass(char.charCodeAt(0) - 'A'.charCodeAt(0))
+                                this._plugBoard.exchangeTable[char.charCodeAt(0) - 'A'.charCodeAt(0)]
                             )
                         )
                     )
-                )
+                ]
             );
         }).join('');
     }
