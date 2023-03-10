@@ -38,8 +38,8 @@ abstract class AbstractWheel {
     protected _offsetTable: number[];
     protected _reverseOffsetTable = Array(26);
     constructor(offsetTableStr: string) {
-        this._offsetTable = [...offsetTableStr].map((v, i) =>  v.charCodeAt(0) - ('A'.charCodeAt(0) + i));
-        this._offsetTable.forEach((v, i) => this._reverseOffsetTable[Mod26.add(i, v)] = -v);
+        this._offsetTable = [...offsetTableStr].map((offsetChar, i) =>  offsetChar.charCodeAt(0) - ('A'.charCodeAt(0) + i));
+        this._offsetTable.forEach((offset, i) => this._reverseOffsetTable[Mod26.add(i, offset)] = -offset);
     }
     passInward(n: number) {
         return Mod26.add(n, this._offsetTable[n]);
@@ -55,15 +55,15 @@ class Wheel extends AbstractWheel {
     get turnOverOffsets() { return this._turnOverOffsets; }
     constructor(offsetTableStr: string, ...turnOverChars: string[]) {
         super(offsetTableStr);
-        this._turnOverOffsets = turnOverChars.map(v => v.charCodeAt(0) - 'A'.charCodeAt(0));
+        this._turnOverOffsets = turnOverChars.map(turnOverChar => turnOverChar.charCodeAt(0) - 'A'.charCodeAt(0));
     }
     rotateRing(inc: number) {
         this._rotationOffset += inc;
     }
     rotate(inc = 1) {
         this._rotationOffset -= inc;
-        this._turnOverOffsets = this._turnOverOffsets.map(v => v - inc);
-        return this._turnOverOffsets.some(v => Mod26.isCongruent(v, -1));
+        this._turnOverOffsets = this._turnOverOffsets.map(turnOverOffset => turnOverOffset - inc);
+        return this._turnOverOffsets.some(turnOverOffset => Mod26.isCongruent(turnOverOffset, -1));
     }
     override passInward(n: number) {
         return Mod26.add(n, this._offsetTable[Mod26.sub(n, this._rotationOffset)]);
@@ -87,13 +87,13 @@ abstract class AbstractEnigma {
         this._plugBoard = plugBoard;
         this._wheels = wheels;
         this._reflector = reflector;
-        wheels.forEach((v, i) => v.rotateRing(ringSetting.charCodeAt(i) - 'A'.charCodeAt(0)));
-        wheels.forEach((v, i) => v.rotate(rotationSetting.charCodeAt(i) - 'A'.charCodeAt(0)));
+        wheels.forEach((wheel, i) => wheel.rotateRing(ringSetting.charCodeAt(i) - 'A'.charCodeAt(0)));
+        wheels.forEach((wheel, i) => wheel.rotate(rotationSetting.charCodeAt(i) - 'A'.charCodeAt(0)));
     }
     encrypt(str: string) {
         return [...str].map(char => {
-            for (const w of this._wheels) {
-                if (!w.rotate()) {
+            for (const wheel of this._wheels) {
+                if (!wheel.rotate()) {
                     break;
                 }
             }
