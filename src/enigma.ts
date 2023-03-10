@@ -87,6 +87,33 @@ abstract class AbstractEnigma {
         wheels.forEach((wheel, i) => wheel.rotateRing(ringSetting.charCodeAt(i) - 'A'.charCodeAt(0)));
         wheels.forEach((wheel, i) => wheel.rotate(rotationSetting.charCodeAt(i) - 'A'.charCodeAt(0)));
     }
+    getPath(char: string) {
+        const exchangedIn = this._plugBoard.exchangeTable[char.charCodeAt(0) - 'A'.charCodeAt(0)];
+        const wheelsIn = Array<number>();
+        for (const wheel of this.wheels) {
+            wheelsIn.push(
+                wheel.passInward(
+                    wheelsIn.length ? wheelsIn[wheelsIn.length - 1] : exchangedIn
+                )
+            );
+        }
+        const reflected = this.reflector.passInward(wheelsIn[wheelsIn.length - 1]);
+        const wheelsOut = Array<number>();
+        for (let i = this._wheels.length - 1; i >= 0; --i) {
+            wheelsOut.push(
+                this._wheels[i].passOutward(
+                    wheelsOut.length ? wheelsOut[wheelsOut.length - 1] : reflected
+                )
+            );
+        }
+        return {
+            exchangedIn: exchangedIn,
+            wheelsIn: wheelsIn,
+            reflected: reflected,
+            wheelsOut: wheelsOut,
+            exchangedOut: this._plugBoard.exchangeTable[wheelsOut[wheelsOut.length - 1]]
+        };
+    }
     encrypt(str: string) {
         return [...str].map(char => {
             for (const wheel of this._wheels) {
@@ -94,19 +121,7 @@ abstract class AbstractEnigma {
                     break;
                 }
             }
-            return String.fromCharCode('A'.charCodeAt(0) +
-                this._plugBoard.exchangeTable[
-                    this._wheels.reduceRight(
-                        (acc, cur) => cur.passOutward(acc),
-                        this._reflector.passOutward(
-                            this._wheels.reduce(
-                                (acc, cur) => cur.passInward(acc),
-                                this._plugBoard.exchangeTable[char.charCodeAt(0) - 'A'.charCodeAt(0)]
-                            )
-                        )
-                    )
-                ]
-            );
+            return String.fromCharCode('A'.charCodeAt(0) + this.getPath(char).exchangedOut);
         }).join('');
     }
     decrypt(str: string) {
