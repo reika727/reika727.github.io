@@ -12,9 +12,6 @@ class Mod26 {
     static sub(n: number, m: number) {
         return Mod26.mod(n - m);
     }
-    static isCongruent(n: number , m: number) {
-        return Mod26.sub(n, m) === 0;
-    }
 }
 
 class PlugBoard {
@@ -59,8 +56,8 @@ class Wheel extends AbstractWheel {
     }
     rotate(inc = 1) {
         this._rotationOffset -= inc;
-        this._turnOverOffsets = this._turnOverOffsets.map(turnOverOffset => turnOverOffset - inc);
-        return this._turnOverOffsets.some(turnOverOffset => Mod26.isCongruent(turnOverOffset, -1));
+        this._turnOverOffsets = this._turnOverOffsets.map(turnOverOffset => Mod26.sub(turnOverOffset, inc));
+        return this._turnOverOffsets.includes(25);
     }
     override passInward(n: number) {
         return Mod26.add(n, this._offsetTable[Mod26.sub(n, this._rotationOffset)]);
