@@ -1,7 +1,62 @@
-<DOCTYPE html>
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <html>
+  <style>
+    label{
+      display: inline-block;
+      text-align: right;
+      width: 150px;
+    }
+    canvas, input {
+      margin-left: auto;
+      margin-right: auto;
+      border: 1px solid;
+      display: block;
+    }
+  </style>
   <body>
-    <canvas id='myCanvas' width='960' height='600'></canvas>
-    <script src='dist/index.js'></script>
+    <canvas id="myCanvas"></canvas>
+    <!--
+    <br>
+    <input id="inputbox" style="text-transform:uppercase" onkeydown="return /[A-Za-z]/.test(event.key)" oninput="inputChange()">
+    <br>
+    <label for="pet-select">右端のウィール</label>
+    <select name="wheel1" id="wheel1-select">
+      <option value="1">WHEEL I</option>
+      <option value="2">WHEEL II</option>
+      <option value="3">WHEEL III</option>
+    </select>
+    <br>
+    <label for="pet-select">真ん中のウィール</label>
+    <select name="wheel2" id="wheel2-select">
+      <option value="1">WHEEL I</option>
+      <option value="2">WHEEL II</option>
+      <option value="3">WHEEL III</option>
+    </select>
+    <br>
+    <label for="pet-select">左端のウィール</label>
+    <select name="wheel3" id="wheel3-select">
+      <option value="1">WHEEL I</option>
+      <option value="2">WHEEL II</option>
+      <option value="3">WHEEL III</option>
+    </select>
+    <br>
+    <label for="pet-select">リフレクター</label>
+    <select name="reflector" id="reflector-select">
+        <option value="A">REFLECTOR A</option>
+        <option value="B">REFLECTOR B</option>
+        <option value="C">REFLECTOR C</option>
+    </select>
+    <br>
+    <label for="name">リング</label>
+    <input type="text" id="name" name="name" required minlength="3" maxlength="3" size="10">
+    <br>
+    <label for="name">回転</label>
+    <input type="text" id="name" name="name" required minlength="3" maxlength="3" size="10">
+    <br>
+    <label for="name">プラグボード</label>
+    <input type="text" id="name" name="name" required size="10">
+  -->
+    <script src="dist/index.js"></script>
   </body>
 </html>
