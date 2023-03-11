@@ -5,9 +5,9 @@ import { EnigmaI, PlugBoard } from './enigma';
 
 const enigma = new EnigmaI(
     new PlugBoard(['A', 'M'], ['F', 'I'], ['N', 'V'], ['P', 'S'], ['T', 'U'], ['W', 'Z']),
-    EnigmaI.wheelI,
-    EnigmaI.wheelII,
-    EnigmaI.whellIII,
+    EnigmaI.rotorI,
+    EnigmaI.rotorII,
+    EnigmaI.rotorIII,
     EnigmaI.reflectorA,
     'AAA',
     'AAA'
@@ -33,17 +33,17 @@ const getDrawingProperty = () => {
     const padding = canvas.width / 16;
     const holeRadius = padding / 5;
     const smallHoleRadius = holeRadius / 2;
-    const wheelRadius = padding * 2;
-    const wheelInternalRadius = wheelRadius * 0.7;
+    const rotorRadius = padding * 2;
+    const rotorInternalRadius = rotorRadius * 0.7;
     return {
         padding: padding,
         holeRadius: holeRadius,
         smallHoleRadius: smallHoleRadius,
-        wheelRadius: wheelRadius,
-        wheelInternalRadius: wheelInternalRadius,
+        rotorRadius: rotorRadius,
+        rotorInternalRadius: rotorInternalRadius,
         holeCoord: (n: number, inOut: 'in' | 'out') => ({
-            x: (inOut == 'in' ? wheelInternalRadius : wheelRadius) * Math.cos(2 * Math.PI / 26 * n - Math.PI / 2),
-            y: (inOut == 'in' ? wheelInternalRadius : wheelRadius) * Math.sin(2 * Math.PI / 26 * n - Math.PI / 2)
+            x: (inOut == 'in' ? rotorInternalRadius : rotorRadius) * Math.cos(2 * Math.PI / 26 * n - Math.PI / 2),
+            y: (inOut == 'in' ? rotorInternalRadius : rotorRadius) * Math.sin(2 * Math.PI / 26 * n - Math.PI / 2)
         })
     };
 };
@@ -66,18 +66,18 @@ setInterval(() => {
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.save();
     /* draw plugboard */
-    context.translate(4 * dp.wheelRadius + 2.5 * dp.padding, 3 * dp.wheelRadius + 2 * dp.padding);
+    context.translate(4 * dp.rotorRadius + 2.5 * dp.padding, 3 * dp.rotorRadius + 2 * dp.padding);
     /* なんか setInterval の外で設定すると反映されない */
     context.textAlign = 'center';
     context.textBaseline = 'middle';
     enigma.plugBoard.exchangeTable.forEach((exchangee, i) => {
         const from = {
-            x: (4 * dp.wheelRadius + dp.padding) * (i / 25 - 0.5),
-            y: dp.wheelRadius
+            x: (4 * dp.rotorRadius + dp.padding) * (i / 25 - 0.5),
+            y: dp.rotorRadius
         };
         const to = {
-            x: (4 * dp.wheelRadius + dp.padding) * (exchangee / 25 - 0.5),
-            y: -dp.wheelRadius
+            x: (4 * dp.rotorRadius + dp.padding) * (exchangee / 25 - 0.5),
+            y: -dp.rotorRadius
         };
         /* draw characters */
         context.fillText(String.fromCharCode('A'.charCodeAt(0) + i), from.x, from.y);
@@ -92,32 +92,32 @@ setInterval(() => {
             : exchangee == i ? 'lightgray'
             : 'black';
         context.stroke();
-        /* to next wheel */
+        /* to next rotor */
         const hole = dp.holeCoord(exchangee, 'out');
-        const nextWheel = {
-            x: hole.x + dp.wheelRadius + dp.padding / 2,
-            y: hole.y - (2 * dp.wheelRadius + dp.padding)
+        const nextRotor = {
+            x: hole.x + dp.rotorRadius + dp.padding / 2,
+            y: hole.y - (2 * dp.rotorRadius + dp.padding)
         };
         context.beginPath();
         context.moveTo(to.x, to.y);
-        context.lineTo(nextWheel.x, nextWheel.y);
+        context.lineTo(nextRotor.x, nextRotor.y);
         context.strokeStyle =
-            exchangee == path.exchangedIn ? createGradient(to.x, to.y, nextWheel.x, nextWheel.y, 1 / 17) /* 1 */
-            : exchangee == path.exchangedOut ? createGradient(nextWheel.x, nextWheel.y, to.x, to.y, 15 / 17) /* 15 */
+            exchangee == path.exchangedIn ? createGradient(to.x, to.y, nextRotor.x, nextRotor.y, 1 / 17) /* 1 */
+            : exchangee == path.exchangedOut ? createGradient(nextRotor.x, nextRotor.y, to.x, to.y, 15 / 17) /* 15 */
             : 'lightgray';
         context.stroke();
     });
-    /* draw wheels */
-    context.translate(dp.wheelRadius + dp.padding / 2, -(2 * dp.wheelRadius + dp.padding));
-    enigma.wheels.forEach((wheel, i) => {
-        const isLastWheel = i == enigma.wheels.length - 1;
+    /* draw rotors */
+    context.translate(dp.rotorRadius + dp.padding / 2, -(2 * dp.rotorRadius + dp.padding));
+    enigma.rotors.forEach((rotor, i) => {
+        const isLastRotor = i == enigma.rotors.length - 1;
         for (let j = 0; j < 26; ++j) {
             const holeFrom = dp.holeCoord(j, 'out');
-            const holeTo = dp.holeCoord(wheel.passInward(j), 'in');
+            const holeTo = dp.holeCoord(rotor.passInward(j), 'in');
             /* draw hole */
             context.beginPath();
             context.arc(holeFrom.x, holeFrom.y, dp.holeRadius, 0, 2 * Math.PI);
-            if (wheel.turnOverOffsets.includes(j)) {
+            if (rotor.turnOverOffsets.includes(j)) {
                 context.fillStyle = 'lightgray';
                 context.fill();
             } else {
@@ -134,31 +134,31 @@ setInterval(() => {
             context.moveTo(holeFrom.x, holeFrom.y);
             context.lineTo(holeTo.x, holeTo.y);
             context.strokeStyle =
-                wheel.passInward(j) == path.wheelsIn[i] ? createGradient(holeFrom.x, holeFrom.y, holeTo.x, holeTo.y, (i + 1) * 2 / 17) /* 2, 4, 6 */
-                : j == path.wheelsOut[2 - i] ? createGradient(holeTo.x, holeTo.y, holeFrom.x, holeFrom.y, (7 - i) * 2 / 17) /* 14, 12, 10 */
+                rotor.passInward(j) == path.rotorsIn[i] ? createGradient(holeFrom.x, holeFrom.y, holeTo.x, holeTo.y, (i + 1) * 2 / 17) /* 2, 4, 6 */
+                : j == path.rotorsOut[2 - i] ? createGradient(holeTo.x, holeTo.y, holeFrom.x, holeFrom.y, (7 - i) * 2 / 17) /* 14, 12, 10 */
                 : 'black';
             context.stroke();
-            /* to next wheel */
+            /* to next rotor */
             context.beginPath();
             context.moveTo(holeTo.x, holeTo.y);
-            const nextWheel = isLastWheel ? {
-                x: holeTo.x * (dp.wheelRadius / dp.wheelInternalRadius),
-                y: holeTo.y * (dp.wheelRadius / dp.wheelInternalRadius) + (2 * dp.wheelRadius + dp.padding)
+            const nextRotor = isLastRotor ? {
+                x: holeTo.x * (dp.rotorRadius / dp.rotorInternalRadius),
+                y: holeTo.y * (dp.rotorRadius / dp.rotorInternalRadius) + (2 * dp.rotorRadius + dp.padding)
             } : {
-                x: holeTo.x * (dp.wheelRadius / dp.wheelInternalRadius) - (2 * dp.wheelRadius + dp.padding),
-                y: holeTo.y * (dp.wheelRadius / dp.wheelInternalRadius)
+                x: holeTo.x * (dp.rotorRadius / dp.rotorInternalRadius) - (2 * dp.rotorRadius + dp.padding),
+                y: holeTo.y * (dp.rotorRadius / dp.rotorInternalRadius)
             };
-            context.lineTo(nextWheel.x, nextWheel.y);
+            context.lineTo(nextRotor.x, nextRotor.y);
             context.strokeStyle =
-                wheel.passInward(j) == path.wheelsIn[i] ? createGradient(holeTo.x, holeTo.y, nextWheel.x, nextWheel.y, ((i + 1) * 2 + 1) / 17) /* 3, 5, 7 */
-                : j == path.wheelsOut[2 - i] ? createGradient(nextWheel.x, nextWheel.y, holeTo.x, holeTo.y, ((6 - i) * 2 + 1) / 17) /* 13, 11, 9 */
+                rotor.passInward(j) == path.rotorsIn[i] ? createGradient(holeTo.x, holeTo.y, nextRotor.x, nextRotor.y, ((i + 1) * 2 + 1) / 17) /* 3, 5, 7 */
+                : j == path.rotorsOut[2 - i] ? createGradient(nextRotor.x, nextRotor.y, holeTo.x, holeTo.y, ((6 - i) * 2 + 1) / 17) /* 13, 11, 9 */
                 : 'lightgray';
             context.stroke();
         }
-        if (isLastWheel) {
-            context.translate(0, 2 * dp.wheelRadius + dp.padding);
+        if (isLastRotor) {
+            context.translate(0, 2 * dp.rotorRadius + dp.padding);
         } else {
-            context.translate(-(2 * dp.wheelRadius + dp.padding), 0);
+            context.translate(-(2 * dp.rotorRadius + dp.padding), 0);
         }
     });
     /* draw reflector */

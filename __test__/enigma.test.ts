@@ -7,10 +7,10 @@ test('M4 FIRST BROKEN MESSAGE', () => {
     expect(
         new M4(
             new PlugBoard(['A', 'T'], ['B', 'L'], ['D', 'F'], ['G', 'J'], ['H', 'M'], ['N', 'W'], ['O', 'P'], ['Q', 'Y'], ['R', 'Z'], ['V', 'X']),
-            M4.wheelI,
-            M4.wheelIV,
-            M4.wheelII,
-            M4.wheelBeta,
+            M4.rotorI,
+            M4.rotorIV,
+            M4.rotorII,
+            M4.rotorBeta,
             M4.reflectorB,
             'VAAA',
             'ANJV'
@@ -27,10 +27,10 @@ test('M4 SECOND BROKEN MESSAGE', () => {
     expect(
         new M4(
             new PlugBoard(['A', 'T'], ['C', 'L'], ['D', 'H'], ['E', 'P'], ['F', 'G'], ['I', 'O'], ['J', 'N'], ['K', 'Q'], ['M', 'U'], ['R', 'X']),
-            M4.wheelI,
-            M4.wheelIV,
-            M4.wheelII,
-            M4.wheelBeta,
+            M4.rotorI,
+            M4.rotorIV,
+            M4.rotorII,
+            M4.rotorBeta,
             M4.reflectorB,
             'VNAA',
             'FSCM'
@@ -47,10 +47,10 @@ test('M4 FINAL BROKEN MESSAGE', () => {
     expect(
         new M4(
             new PlugBoard(['B', 'Q'], ['C', 'R'], ['D', 'I'], ['E', 'J'], ['K', 'W'], ['M', 'T'], ['O', 'S'], ['P', 'X'], ['U', 'Z'], ['G', 'H']),
-            M4.wheelIII,
-            M4.wheelI,
-            M4.wheelVI,
-            M4.wheelBeta,
+            M4.rotorIII,
+            M4.rotorI,
+            M4.rotorVI,
+            M4.rotorBeta,
             M4.reflectorB,
             'GTZZ',
             'LHBN'

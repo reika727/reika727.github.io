@@ -1,6 +1,6 @@
 'use strict';
 
-export { PlugBoard, Wheel, Reflector, EnigmaI, M4 };
+export { PlugBoard, Rotor, Reflector, EnigmaI, M4 };
 
 class Mod26 {
     static mod(n: number) {
@@ -28,7 +28,7 @@ class PlugBoard {
     }
 }
 
-abstract class AbstractWheel {
+abstract class AbstractRotor {
     protected _offsetTable: number[];
     protected _reverseOffsetTable = Array(26);
     constructor(offsetTableStr: string) {
@@ -43,7 +43,7 @@ abstract class AbstractWheel {
     }
 }
 
-class Wheel extends AbstractWheel {
+class Rotor extends AbstractRotor {
     private _rotationOffset = 0;
     private _turnOverOffsets: number[];
     get turnOverOffsets() { return this._turnOverOffsets; }
@@ -67,54 +67,54 @@ class Wheel extends AbstractWheel {
     }
 }
 
-class Reflector extends AbstractWheel {
+class Reflector extends AbstractRotor {
 }
 
 abstract class AbstractEnigma {
     protected _plugBoard: PlugBoard;
-    protected _wheels: Wheel[];
+    protected _rotors: Rotor[];
     protected _reflector: Reflector;
     get plugBoard() { return this._plugBoard; }
-    get wheels() { return this._wheels; }
+    get rotors() { return this._rotors; }
     get reflector() { return this._reflector; }
-    constructor(plugBoard: PlugBoard, wheels: Wheel[], reflector: Reflector, ringSetting: string, rotationSetting: string) {
+    constructor(plugBoard: PlugBoard, rotors: Rotor[], reflector: Reflector, ringSetting: string, rotationSetting: string) {
         this._plugBoard = plugBoard;
-        this._wheels = wheels;
+        this._rotors = rotors;
         this._reflector = reflector;
-        wheels.forEach((wheel, i) => wheel.rotateRing(ringSetting.charCodeAt(i) - 'A'.charCodeAt(0)));
-        wheels.forEach((wheel, i) => wheel.rotate(rotationSetting.charCodeAt(i) - 'A'.charCodeAt(0)));
+        rotors.forEach((rotor, i) => rotor.rotateRing(ringSetting.charCodeAt(i) - 'A'.charCodeAt(0)));
+        rotors.forEach((rotor, i) => rotor.rotate(rotationSetting.charCodeAt(i) - 'A'.charCodeAt(0)));
     }
     getPath(char: string) {
         const exchangedIn = this._plugBoard.exchangeTable[char.charCodeAt(0) - 'A'.charCodeAt(0)];
-        const wheelsIn = Array<number>();
-        for (const wheel of this.wheels) {
-            wheelsIn.push(
-                wheel.passInward(
-                    wheelsIn.length ? wheelsIn[wheelsIn.length - 1] : exchangedIn
+        const rotorsIn = Array<number>();
+        for (const rotor of this.rotors) {
+            rotorsIn.push(
+                rotor.passInward(
+                    rotorsIn.length ? rotorsIn[rotorsIn.length - 1] : exchangedIn
                 )
             );
         }
-        const reflected = this.reflector.passInward(wheelsIn[wheelsIn.length - 1]);
-        const wheelsOut = Array<number>();
-        for (let i = this._wheels.length - 1; i >= 0; --i) {
-            wheelsOut.push(
-                this._wheels[i].passOutward(
-                    wheelsOut.length ? wheelsOut[wheelsOut.length - 1] : reflected
+        const reflected = this.reflector.passInward(rotorsIn[rotorsIn.length - 1]);
+        const rotorsOut = Array<number>();
+        for (let i = this._rotors.length - 1; i >= 0; --i) {
+            rotorsOut.push(
+                this._rotors[i].passOutward(
+                    rotorsOut.length ? rotorsOut[rotorsOut.length - 1] : reflected
                 )
             );
         }
         return {
             exchangedIn: exchangedIn,
-            wheelsIn: wheelsIn,
+            rotorsIn: rotorsIn,
             reflected: reflected,
-            wheelsOut: wheelsOut,
-            exchangedOut: this._plugBoard.exchangeTable[wheelsOut[wheelsOut.length - 1]]
+            rotorsOut: rotorsOut,
+            exchangedOut: this._plugBoard.exchangeTable[rotorsOut[rotorsOut.length - 1]]
         };
     }
     encrypt(str: string) {
         return [...str].map(char => {
-            for (const wheel of this._wheels) {
-                if (!wheel.rotate()) {
+            for (const rotor of this._rotors) {
+                if (!rotor.rotate()) {
                     break;
                 }
             }
@@ -127,53 +127,53 @@ abstract class AbstractEnigma {
 }
 
 class EnigmaI extends AbstractEnigma {
-    static get wheelI() { return new Wheel('EKMFLGDQVZNTOWYHXUSPAIBRCJ', 'Q'); }
-    static get wheelII() { return new Wheel('AJDKSIRUXBLHWTMCQGZNPYFVOE', 'E'); }
-    static get whellIII() { return new Wheel('BDFHJLCPRTXVZNYEIWGAKMUSQO', 'V'); }
-    static get wheelIV() { return new Wheel('ESOVPZJAYQUIRHXLNFTGKDCMWB', 'J'); }
-    static get wheelV() { return new Wheel('VZBRGITYUPSDNHLXAWMJQOFECK', 'Z'); }
+    static get rotorI() { return new Rotor('EKMFLGDQVZNTOWYHXUSPAIBRCJ', 'Q'); }
+    static get rotorII() { return new Rotor('AJDKSIRUXBLHWTMCQGZNPYFVOE', 'E'); }
+    static get rotorIII() { return new Rotor('BDFHJLCPRTXVZNYEIWGAKMUSQO', 'V'); }
+    static get rotorIV() { return new Rotor('ESOVPZJAYQUIRHXLNFTGKDCMWB', 'J'); }
+    static get rotorV() { return new Rotor('VZBRGITYUPSDNHLXAWMJQOFECK', 'Z'); }
     static get reflectorA() { return new Reflector('EJMZALYXVBWFCRQUONTSPIKHGD'); }
     static get reflectorB() { return new Reflector('YRUHQSLDPXNGOKMIEBFZCWVJAT'); }
     static get reflectorC() { return new Reflector('FVPJIAOYEDRZXWGCTKUQSBNMHL'); }
     constructor(
         plugBoard: PlugBoard,
-        wheel1: Wheel, wheel2: Wheel, wheel3: Wheel,
+        rotor1: Rotor, rotor2: Rotor, rotor3: Rotor,
         reflector: Reflector,
         ringSetting: string,
         rotationSetting: string
     ) {
-        super(plugBoard, [wheel1, wheel2, wheel3], reflector, ringSetting, rotationSetting);
+        super(plugBoard, [rotor1, rotor2, rotor3], reflector, ringSetting, rotationSetting);
     }
 }
 
 class M4 extends AbstractEnigma {
-    static get wheelI() { return EnigmaI.wheelI; }
-    static get wheelII() { return EnigmaI.wheelII; }
-    static get wheelIII() { return EnigmaI.whellIII; }
-    static get wheelIV() { return EnigmaI.wheelIV; }
-    static get wheelV() { return EnigmaI.wheelV; }
-    static get wheelVI() { return new Wheel('JPGVOUMFYQBENHZRDKASXLICTW', 'Z', 'M'); }
-    static get wheelVII() { return new Wheel('NZJHGRCXMYSWBOUFAIVLPEKQDT', 'Z', 'M'); }
-    static get wheelVIII() { return new Wheel('FKQHTLXOCBJSPDZRAMEWNIUYGV', 'Z', 'M'); }
-    static get wheelBeta() { return new Wheel('LEYJVCNIXWPBQMDRTAKZGFUHOS'); }
-    static get wheelGumma() { return new Wheel('FSOKANUERHMBTIYCWLQPZXVGJD'); }
+    static get rotorI() { return EnigmaI.rotorI; }
+    static get rotorII() { return EnigmaI.rotorII; }
+    static get rotorIII() { return EnigmaI.rotorIII; }
+    static get rotorIV() { return EnigmaI.rotorIV; }
+    static get rotorV() { return EnigmaI.rotorV; }
+    static get rotorVI() { return new Rotor('JPGVOUMFYQBENHZRDKASXLICTW', 'Z', 'M'); }
+    static get rotorVII() { return new Rotor('NZJHGRCXMYSWBOUFAIVLPEKQDT', 'Z', 'M'); }
+    static get rotorVIII() { return new Rotor('FKQHTLXOCBJSPDZRAMEWNIUYGV', 'Z', 'M'); }
+    static get rotorBeta() { return new Rotor('LEYJVCNIXWPBQMDRTAKZGFUHOS'); }
+    static get rotorGumma() { return new Rotor('FSOKANUERHMBTIYCWLQPZXVGJD'); }
     static get reflectorB() { return new Reflector('ENKQAUYWJICOPBLMDXZVFTHRGS'); }
     static get reflectorC() { return new Reflector('RDOBJNTKVEHMLFCWZAXGYIPSUQ'); }
     constructor(
         plugBoard: PlugBoard,
-        wheel1: Wheel, wheel2: Wheel, wheel3: Wheel,
-        additionalWheel: Wheel, reflector: Reflector,
+        rotor1: Rotor, rotor2: Rotor, rotor3: Rotor,
+        additionalRotor: Rotor, reflector: Reflector,
         ringSetting: string,
         rotationSetting: string
     ) {
-        additionalWheel.rotateRing(ringSetting.charCodeAt(3) - 'A'.charCodeAt(0));
-        additionalWheel.rotate(rotationSetting.charCodeAt(3) - 'A'.charCodeAt(0));
+        additionalRotor.rotateRing(ringSetting.charCodeAt(3) - 'A'.charCodeAt(0));
+        additionalRotor.rotate(rotationSetting.charCodeAt(3) - 'A'.charCodeAt(0));
         super(
             plugBoard,
-            [wheel1, wheel2, wheel3],
+            [rotor1, rotor2, rotor3],
             new Reflector(
                 [...Array(26).keys()].map(
-                    i => String.fromCharCode('A'.charCodeAt(0) + additionalWheel.passOutward(reflector.passInward(additionalWheel.passInward(i))))
+                    i => String.fromCharCode('A'.charCodeAt(0) + additionalRotor.passOutward(reflector.passInward(additionalRotor.passInward(i))))
                 ).join('')
             ),
             ringSetting,
