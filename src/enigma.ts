@@ -2,15 +2,15 @@
 
 export { PlugBoard, Rotor, Reflector, EnigmaI, M4 };
 
-class Mod26 {
-    static mod(n: number) {
+namespace Mod26 {
+    function mod(n: number) {
         return (n % 26 + 26) % 26;
     }
-    static add(n: number, m: number) {
-        return Mod26.mod(n + m);
+    export function add(n: number, m: number) {
+        return mod(n + m);
     }
-    static sub(n: number, m: number) {
-        return Mod26.mod(n - m);
+    export function sub(n: number, m: number) {
+        return mod(n - m);
     }
 }
 
