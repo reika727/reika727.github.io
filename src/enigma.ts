@@ -51,23 +51,23 @@ class Rotor extends AbstractRotor {
     private _rotationOffset = 0;
     private _turnOverOffsets: number[];
     set ring(char: string) { this._ringRotationOffset = char.charCodeAt(0) - 'A'.charCodeAt(0); }
-    set rotation(char: string) { this._rotationOffset = -(char.charCodeAt(0) - 'A'.charCodeAt(0)); }
+    set rotation(char: string) { this._rotationOffset = char.charCodeAt(0) - 'A'.charCodeAt(0); }
     constructor(offsetTableStr: string, ...turnOverChars: string[]) {
         super(offsetTableStr);
         this._turnOverOffsets = turnOverChars.map(turnOverChar => turnOverChar.charCodeAt(0) - 'A'.charCodeAt(0));
     }
     isTurnOver(n: number) {
-        return this._turnOverOffsets.some(turnOverOffset => Mod26.isCongruent(Mod26.add(turnOverOffset, this._rotationOffset), n));
+        return this._turnOverOffsets.some(turnOverOffset => Mod26.isCongruent(n + this._rotationOffset, turnOverOffset));
     }
     rotate() {
-        --this._rotationOffset;
+        ++this._rotationOffset;
         return this.isTurnOver(-1);
     }
     override passInward(n: number) {
-        return Mod26.add(n, this._offsetTable[Mod26.sub(n, this._ringRotationOffset + this._rotationOffset)]);
+        return Mod26.add(n, this._offsetTable[Mod26.sub(n + this._rotationOffset, this._ringRotationOffset)]);
     }
     override passOutward(n: number) {
-        return Mod26.add(n, this._reverseOffsetTable[Mod26.sub(n, this._ringRotationOffset + this._rotationOffset)]);
+        return Mod26.add(n, this._reverseOffsetTable[Mod26.sub(n + this._rotationOffset, this._ringRotationOffset)]);
     }
 }
 
