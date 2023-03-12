@@ -165,7 +165,7 @@ setInterval(() => {
     const drawns = Array<number>();
     for (let i = 0; i < 26; ++i) {
         const holeFrom = dp.holeCoord(i, 'out');
-        const holeTo = dp.holeCoord(enigma.reflector.passInward(i), 'out');
+        const holeTo = dp.holeCoord(enigma.reflector.pass(i), 'out');
         /* draw hole */
         context.beginPath();
         context.arc(holeFrom.x, holeFrom.y, dp.holeRadius, 0, 2 * Math.PI);
@@ -179,11 +179,11 @@ setInterval(() => {
         context.moveTo(holeFrom.x, holeFrom.y);
         context.lineTo(holeTo.x, holeTo.y);
         context.strokeStyle =
-            enigma.reflector.passInward(i) == path.reflected ? createGradient(holeFrom.x, holeFrom.y, holeTo.x, holeTo.y, 8 / 17) /* 8 */
+            enigma.reflector.pass(i) == path.reflected ? createGradient(holeFrom.x, holeFrom.y, holeTo.x, holeTo.y, 8 / 17) /* 8 */
             : i == path.reflected ? createGradient(holeTo.x, holeTo.y, holeFrom.x, holeFrom.y, 8 / 17) /* 8 */
             : 'black';
         context.stroke();
-        drawns.push(enigma.reflector.passInward(i));
+        drawns.push(enigma.reflector.pass(i));
     }
     context.restore();
 }, 300);

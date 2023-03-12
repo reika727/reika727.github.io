@@ -31,29 +31,17 @@ class PlugBoard {
     }
 }
 
-abstract class AbstractRotor {
-    protected _offsetTable: number[];
-    protected _reverseOffsetTable = Array(26);
-    constructor(offsetTableStr: string) {
-        this._offsetTable = [...offsetTableStr].map((offsetChar, i) =>  offsetChar.charCodeAt(0) - ('A'.charCodeAt(0) + i));
-        this._offsetTable.forEach((offset, i) => this._reverseOffsetTable[Mod26.add(i, offset)] = -offset);
-    }
-    passInward(n: number) {
-        return Mod26.add(n, this._offsetTable[n]);
-    }
-    passOutward(n: number) {
-        return Mod26.add(n, this._reverseOffsetTable[n]);
-    }
-}
-
-class Rotor extends AbstractRotor {
+class Rotor {
+    private _offsetTable: number[];
+    private _reverseOffsetTable = Array(26);
     private _ringRotationOffset = 0;
     private _rotationOffset = 0;
     private _turnOverOffsets: number[];
     set ring(char: string) { this._ringRotationOffset = char.charCodeAt(0) - 'A'.charCodeAt(0); }
     set rotation(char: string) { this._rotationOffset = char.charCodeAt(0) - 'A'.charCodeAt(0); }
     constructor(offsetTableStr: string, ...turnOverChars: string[]) {
-        super(offsetTableStr);
+        this._offsetTable = [...offsetTableStr].map((offsetChar, i) =>  offsetChar.charCodeAt(0) - ('A'.charCodeAt(0) + i));
+        this._offsetTable.forEach((offset, i) => this._reverseOffsetTable[Mod26.add(i, offset)] = -offset);
         this._turnOverOffsets = turnOverChars.map(turnOverChar => turnOverChar.charCodeAt(0) - 'A'.charCodeAt(0));
     }
     isTurnOver(n: number) {
@@ -63,15 +51,22 @@ class Rotor extends AbstractRotor {
         ++this._rotationOffset;
         return this.isTurnOver(-1);
     }
-    override passInward(n: number) {
+    passInward(n: number) {
         return Mod26.add(n, this._offsetTable[Mod26.sub(n + this._rotationOffset, this._ringRotationOffset)]);
     }
-    override passOutward(n: number) {
+    passOutward(n: number) {
         return Mod26.add(n, this._reverseOffsetTable[Mod26.sub(n + this._rotationOffset, this._ringRotationOffset)]);
     }
 }
 
-class Reflector extends AbstractRotor {
+class Reflector {
+    private _offsetTable: number[];
+    constructor(offsetTableStr: string) {
+        this._offsetTable = [...offsetTableStr].map((offsetChar, i) =>  offsetChar.charCodeAt(0) - ('A'.charCodeAt(0) + i));
+    }
+    pass(n: number) {
+        return Mod26.add(n, this._offsetTable[n]);
+    }
 }
 
 abstract class AbstractEnigma {
@@ -98,7 +93,7 @@ abstract class AbstractEnigma {
                 )
             );
         }
-        const reflected = this.reflector.passInward(rotorsIn[rotorsIn.length - 1]);
+        const reflected = this.reflector.pass(rotorsIn[rotorsIn.length - 1]);
         const rotorsOut = Array<number>();
         for (let i = this._rotors.length - 1; i >= 0; --i) {
             rotorsOut.push(
@@ -177,7 +172,7 @@ class M4 extends AbstractEnigma {
             [rotor1, rotor2, rotor3],
             new Reflector(
                 [...Array(26).keys()].map(
-                    i => String.fromCharCode('A'.charCodeAt(0) + additionalRotor.passOutward(reflector.passInward(additionalRotor.passInward(i))))
+                    i => String.fromCharCode('A'.charCodeAt(0) + additionalRotor.passOutward(reflector.pass(additionalRotor.passInward(i))))
                 ).join('')
             ),
             ringSetting,
