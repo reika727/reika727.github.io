@@ -50,6 +50,8 @@ class Rotor extends AbstractRotor {
     private _ringRotationOffset = 0;
     private _rotationOffset = 0;
     private _turnOverOffsets: number[];
+    set ring(char: string) { this._ringRotationOffset = char.charCodeAt(0) - 'A'.charCodeAt(0); }
+    set rotation(char: string) { this._rotationOffset = -(char.charCodeAt(0) - 'A'.charCodeAt(0)); }
     constructor(offsetTableStr: string, ...turnOverChars: string[]) {
         super(offsetTableStr);
         this._turnOverOffsets = turnOverChars.map(turnOverChar => turnOverChar.charCodeAt(0) - 'A'.charCodeAt(0));
@@ -57,12 +59,9 @@ class Rotor extends AbstractRotor {
     isTurnOver(n: number) {
         return this._turnOverOffsets.some(turnOverOffset => Mod26.isCongruent(Mod26.add(turnOverOffset, this._rotationOffset), n));
     }
-    rotateRing(inc: number) {
-        this._ringRotationOffset += inc;
-    }
-    rotate(inc = 1) {
-        this._rotationOffset -= inc;
-        return this.isTurnOver(25);
+    rotate() {
+        --this._rotationOffset;
+        return this.isTurnOver(-1);
     }
     override passInward(n: number) {
         return Mod26.add(n, this._offsetTable[Mod26.sub(n, this._ringRotationOffset + this._rotationOffset)]);
@@ -86,8 +85,8 @@ abstract class AbstractEnigma {
         this._plugBoard = plugBoard;
         this._rotors = rotors;
         this._reflector = reflector;
-        rotors.forEach((rotor, i) => rotor.rotateRing(ringSetting.charCodeAt(i) - 'A'.charCodeAt(0)));
-        rotors.forEach((rotor, i) => rotor.rotate(rotationSetting.charCodeAt(i) - 'A'.charCodeAt(0)));
+        rotors.forEach((rotor, i) => rotor.ring = ringSetting.charAt(i));
+        rotors.forEach((rotor, i) => rotor.rotation = rotationSetting.charAt(i));
     }
     getPath(char: string) {
         const exchangedIn = this._plugBoard.exchangeTable[char.charCodeAt(0) - 'A'.charCodeAt(0)];
@@ -171,8 +170,8 @@ class M4 extends AbstractEnigma {
         ringSetting: string,
         rotationSetting: string
     ) {
-        additionalRotor.rotateRing(ringSetting.charCodeAt(3) - 'A'.charCodeAt(0));
-        additionalRotor.rotate(rotationSetting.charCodeAt(3) - 'A'.charCodeAt(0));
+        additionalRotor.ring = ringSetting.charAt(3);
+        additionalRotor.rotation = rotationSetting.charAt(3);
         super(
             plugBoard,
             [rotor1, rotor2, rotor3],
