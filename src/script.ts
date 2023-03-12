@@ -117,7 +117,7 @@ setInterval(() => {
             /* draw hole */
             context.beginPath();
             context.arc(holeFrom.x, holeFrom.y, dp.holeRadius, 0, 2 * Math.PI);
-            if (rotor.turnOverOffsets.includes(j)) {
+            if (rotor.isTurnOver(j)) {
                 context.fillStyle = 'lightgray';
                 context.fill();
             } else {

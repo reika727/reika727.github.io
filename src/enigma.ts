@@ -12,6 +12,9 @@ namespace Mod26 {
     export function sub(n: number, m: number) {
         return mod(n - m);
     }
+    export function isCongruent(n: number, m: number) {
+        return sub(n, m) == 0;
+    }
 }
 
 class PlugBoard {
@@ -47,18 +50,19 @@ class Rotor extends AbstractRotor {
     private _ringRotationOffset = 0;
     private _rotationOffset = 0;
     private _turnOverOffsets: number[];
-    get turnOverOffsets() { return this._turnOverOffsets; }
     constructor(offsetTableStr: string, ...turnOverChars: string[]) {
         super(offsetTableStr);
         this._turnOverOffsets = turnOverChars.map(turnOverChar => turnOverChar.charCodeAt(0) - 'A'.charCodeAt(0));
+    }
+    isTurnOver(n: number) {
+        return this._turnOverOffsets.some(turnOverOffset => Mod26.isCongruent(Mod26.add(turnOverOffset, this._rotationOffset), n));
     }
     rotateRing(inc: number) {
         this._ringRotationOffset += inc;
     }
     rotate(inc = 1) {
         this._rotationOffset -= inc;
-        this._turnOverOffsets = this._turnOverOffsets.map(turnOverOffset => Mod26.sub(turnOverOffset, inc));
-        return this._turnOverOffsets.includes(25);
+        return this.isTurnOver(25);
     }
     override passInward(n: number) {
         return Mod26.add(n, this._offsetTable[Mod26.sub(n, this._ringRotationOffset + this._rotationOffset)]);
