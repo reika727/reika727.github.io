@@ -44,6 +44,7 @@ abstract class AbstractRotor {
 }
 
 class Rotor extends AbstractRotor {
+    private _ringRotationOffset = 0;
     private _rotationOffset = 0;
     private _turnOverOffsets: number[];
     get turnOverOffsets() { return this._turnOverOffsets; }
@@ -52,7 +53,7 @@ class Rotor extends AbstractRotor {
         this._turnOverOffsets = turnOverChars.map(turnOverChar => turnOverChar.charCodeAt(0) - 'A'.charCodeAt(0));
     }
     rotateRing(inc: number) {
-        this._rotationOffset += inc;
+        this._ringRotationOffset += inc;
     }
     rotate(inc = 1) {
         this._rotationOffset -= inc;
@@ -60,10 +61,10 @@ class Rotor extends AbstractRotor {
         return this._turnOverOffsets.includes(25);
     }
     override passInward(n: number) {
-        return Mod26.add(n, this._offsetTable[Mod26.sub(n, this._rotationOffset)]);
+        return Mod26.add(n, this._offsetTable[Mod26.sub(n, this._ringRotationOffset + this._rotationOffset)]);
     }
     override passOutward(n: number) {
-        return Mod26.add(n, this._reverseOffsetTable[Mod26.sub(n, this._rotationOffset)]);
+        return Mod26.add(n, this._reverseOffsetTable[Mod26.sub(n, this._ringRotationOffset + this._rotationOffset)]);
     }
 }
 
