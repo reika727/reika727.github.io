@@ -32,37 +32,37 @@ class PlugBoard {
 }
 
 class Rotor {
-    private _offsetTable: number[];
-    private _reverseOffsetTable = Array(26);
-    private _ringRotationOffset = 0;
-    private _rotationOffset = 0;
-    private _turnOverOffsets: number[];
-    set ring(char: string) { this._ringRotationOffset = char.charCodeAt(0) - 'A'.charCodeAt(0); }
-    set rotation(char: string) { this._rotationOffset = char.charCodeAt(0) - 'A'.charCodeAt(0); }
-    constructor(offsetTableStr: string, ...turnOverChars: string[]) {
-        this._offsetTable = [...offsetTableStr].map((offsetChar, i) =>  offsetChar.charCodeAt(0) - ('A'.charCodeAt(0) + i));
-        this._offsetTable.forEach((offset, i) => this._reverseOffsetTable[Mod26.add(i, offset)] = -offset);
-        this._turnOverOffsets = turnOverChars.map(turnOverChar => turnOverChar.charCodeAt(0) - 'A'.charCodeAt(0));
+    private _initialOffsetTable: number[];
+    private _initialReverseOffsetTable = Array(26);
+    private _ringRotation = 0;
+    private _rotation = 0;
+    private _initialTurnOvers: number[];
+    set ring(char: string) { this._ringRotation = char.charCodeAt(0) - 'A'.charCodeAt(0); }
+    set rotation(char: string) { this._rotation = char.charCodeAt(0) - 'A'.charCodeAt(0); }
+    constructor(initialOffsetTableStr: string, ...turnOverChars: string[]) {
+        this._initialOffsetTable = [...initialOffsetTableStr].map((initialOffsetChar, i) =>  initialOffsetChar.charCodeAt(0) - ('A'.charCodeAt(0) + i));
+        this._initialOffsetTable.forEach((initialOffset, i) => this._initialReverseOffsetTable[Mod26.add(i, initialOffset)] = -initialOffset);
+        this._initialTurnOvers = turnOverChars.map(turnOverChar => turnOverChar.charCodeAt(0) - 'A'.charCodeAt(0));
     }
     isTurnOver(n: number) {
-        return this._turnOverOffsets.some(turnOverOffset => Mod26.isCongruent(n + this._rotationOffset, turnOverOffset));
+        return this._initialTurnOvers.some(initialTurnOver => Mod26.isCongruent(n + this._rotation, initialTurnOver));
     }
     rotate() {
-        ++this._rotationOffset;
+        ++this._rotation;
         return this.isTurnOver(-1);
     }
     passInward(n: number) {
-        return Mod26.add(n, this._offsetTable[Mod26.sub(n + this._rotationOffset, this._ringRotationOffset)]);
+        return Mod26.add(n, this._initialOffsetTable[Mod26.sub(n + this._rotation, this._ringRotation)]);
     }
     passOutward(n: number) {
-        return Mod26.add(n, this._reverseOffsetTable[Mod26.sub(n + this._rotationOffset, this._ringRotationOffset)]);
+        return Mod26.add(n, this._initialReverseOffsetTable[Mod26.sub(n + this._rotation, this._ringRotation)]);
     }
 }
 
 class Reflector {
     private _offsetTable: number[];
     constructor(offsetTableStr: string) {
-        this._offsetTable = [...offsetTableStr].map((offsetChar, i) =>  offsetChar.charCodeAt(0) - ('A'.charCodeAt(0) + i));
+        this._offsetTable = [...offsetTableStr].map((offsetChar, i) => offsetChar.charCodeAt(0) - ('A'.charCodeAt(0) + i));
     }
     pass(n: number) {
         return Mod26.add(n, this._offsetTable[n]);
