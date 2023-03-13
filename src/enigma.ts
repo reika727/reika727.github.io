@@ -1,48 +1,97 @@
 'use strict';
 
-export { PlugBoard, Rotor, Reflector, EnigmaI, M4 };
+export { Alphabet, PlugBoard, Rotor, Reflector, EnigmaI, M4 };
 
 /**
- * 26 を法とする最小非負剰余を扱う関数群
+ * 与えられた整数を法とする最小非負剰余を扱う関数群
+ * @param modulo 法
+ * @returns modulo を法とする加算・減算・合同判定を行うオブジェクト
  */
-namespace Mod26 {
+function mod(modulo: number) {
+    return {
+        /**
+         * modulo を法とする加算
+         * @param n
+         * @param m
+         * @returns modulo を法とする n + m の剰余
+         */
+        add: (n: number, m: number) => ((n + m) % modulo + modulo) % modulo,
+
+        /**
+         * modulo を法とする減算
+         * @param n
+         * @param m
+         * @returns modulo を法とする n - m の剰余
+         */
+        sub: (n: number, m: number) => ((n - m) % modulo + modulo) % modulo,
+
+        /**
+         * modulo を法として合同であるか
+         * @param n
+         * @param m
+         * @returns n と m が modulo を法として合同であるか
+         */
+        isCongruent: (n: number, m: number) => (n - m) % modulo == 0
+    }
+}
+
+/**
+ * 文字の集合
+ */
+class Alphabet {
     /**
-     * 26 を法とする剰余
-     * @param n 剰余を求める数
-     * @returns 26 を法とする n の剰余
+     * 大文字ラテンアルファベット
      */
-    function mod(n: number) {
-        return (n % 26 + 26) % 26;
+    static get capitalLatin() { return new Alphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ'); }
+
+    /**
+     * 使用する文字の配列（重複は排除される）
+     */
+    private _characters: string[];
+
+    /**
+     * 文字から番号への辞書
+     */
+    private _indices = new Map<string, number>;
+
+    /**
+     * 含まれる文字の数
+     */
+    get size() { return this._characters.length; }
+
+    /**
+     * @description characters 内に重複する文字が存在する場合は無視される。例えば 'EBXBD' という文字列が渡された場合 ['E', 'B', 'X', 'D'] が実際に使用されるアルファベットになる。
+     */
+    constructor(characters: string) {
+        this._characters = Array.from(new Set([...characters]));
+        this._characters.forEach((c, v) => this._indices.set(c, v));
     }
 
     /**
-     * 26 を法とする加算
-     * @param n
-     * @param m
-     * @returns 26 を法とする n + m の剰余
+     * アルファベット内の特定位置の文字
+     * @param index 位置
+     * @returns index に位置する文字。範囲外の場合は undefined
      */
-    export function add(n: number, m: number) {
-        return mod(n + m);
+    at(index: number) {
+        return this._characters[index];
     }
 
     /**
-     * 26 を法とする減算
-     * @param n
-     * @param m
-     * @returns 26 を法とする n - m の剰余
+     * 文字から位置への変換
+     * @param char 文字
+     * @returns char の位置。char がアルファベット内に含まれない場合は undefined
      */
-    export function sub(n: number, m: number) {
-        return mod(n - m);
+    indexOf(char: string) {
+        return this._indices.get(char);
     }
 
     /**
-     * 26 を法として合同であるか
-     * @param n
-     * @param m
-     * @returns n と m が 26 を法として合同であるか
+     * 含まれる文字が順番を含めて同一であるか
+     * @param alphabet 比較対象
+     * @returns this と alphabet の文字集合が等しいか
      */
-    export function isCongruent(n: number, m: number) {
-        return sub(n, m) == 0;
+    eqauls(alphabet: Alphabet) {
+        return this._characters.join('') === alphabet._characters.join('');
     }
 }
 
@@ -51,26 +100,47 @@ namespace Mod26 {
  */
 class PlugBoard {
     /**
-     * @see {@link exchangeTable}
+     * @see {@link alphabet}
      */
-    private _exchangeTable = [...Array(26).keys()];
+    private _alphabet: Alphabet;
 
     /**
-     * プラグボードによる各アルファベットの交換先のテーブル
-     * @example A と C が交換される場合 exchangeTable[0] = 2, exchangeTable[2] = 0 となる。
+     * @see {@link exchangeTable}
+     */
+    private _exchangeTable: number[];
+
+    /**
+     * 使用するアルファベット
+     */
+    get alphabet() { return this._alphabet; }
+
+    /**
+     * プラグボードによる各文字の交換先のテーブル
+     * @example 大文字ラテンアルファベットを用いるとき、A と C が交換される場合 exchangeTable[0] = 2, exchangeTable[2] = 0 となる。
      */
     get exchangeTable() { return this._exchangeTable; }
 
     /**
+     * @param alphabet 使用するアルファベット
      * @param pairs 交換すべき文字の任意個のペア
      * @example A と C，K と O を交換する場合は ['A', 'C'], ['K', 'O'] を渡す。
-     * @description ['A', 'A'] など同じ文字を交換するようにしてもエラー扱いにはならないことと、エニグマの実機とは違って交換できる数に上限がないことに注意。
+     * @description ['A', 'A'] など同じ文字を交換するようにしてもエラー扱いにはならない。
+     * @description 厳密には pairs に対し先頭から順にプラグを指しなおすという動作を行う。よって、例えば ['A', 'J'], ['J', 'Q'] が渡された場合には A が J に、J が Q に、Q が A に変換されることになる。
+     * @throws {Error} alphabet が空であってはならない。
+     * @throws {Error} pairs に alphabet にない文字が含まれていてはならない。
      */
-    constructor(...pairs: [string, string][]) {
+    constructor(alphabet: Alphabet, ...pairs: [string, string][]) {
+        if (alphabet.size === 0) {
+            throw Error('alphabet must not be empty.');
+        }
+        this._alphabet = alphabet;
+        this._exchangeTable = [...Array(this._alphabet.size).keys()];
         pairs.forEach(
             ([c1, c2]) => {
-                const idx1 = c1.charCodeAt(0) - 'A'.charCodeAt(0);
-                const idx2 = c2.charCodeAt(0) - 'A'.charCodeAt(0);
+                const idx1 = this._alphabet.indexOf(c1), idx2 = this._alphabet.indexOf(c2);
+                if (idx1 === undefined || idx2 === undefined) {
+                    throw Error('unknown character in argument "pairs".');
+                }
                 [this._exchangeTable[idx1], this._exchangeTable[idx2]] = [this._exchangeTable[idx2], this._exchangeTable[idx1]];
             }
         );
@@ -80,23 +150,28 @@ class PlugBoard {
 /**
  * エニグマのロータ
  * @description 以下、リングもロータ自体も回転していない状態を「初期設定」と呼ぶ。
- * @description このクラスにおいては、「交換を行わないプラグボードにそのロータを接続したときに n 番目のアルファベットの入力信号が入ってくる穴、及びその向かい側の穴」を「n 番目の穴」と呼ぶ。またこの「穴の番号」はその穴自体に固有のものではなく、ロータの回転によって変化することに注意せよ。すなわち、ロータが一文字分の回転を行った場合、回転前には n 番目だった穴は回転後には (n - 1) mod 26 番目の穴になる。
+ * @description このクラスにおいては「交換を行わないプラグボードにそのロータを接続したときに n 番目の文字の入力信号が入ってくる穴、及びその向かい側の穴」を「n 番目の穴」と呼ぶ。またこの「穴の番号」はその穴自体に固有のものではなく、ロータの回転によって変化することに注意せよ。すなわち、ロータが一文字分の回転を行った場合、回転前には n 番目だった穴は回転後には (n - 1) mod |alphabet| 番目の穴になる。
  * @description このクラスにおいて、「隣のロータに回転を誘発する穴」は 0 番目から 25 番目に変わるときに回転を誘発するものとする。
  */
 class Rotor {
     /**
+     * @see {@link alphabet}
+     */
+    private _alphabet: Alphabet;
+
+    /**
      * 初期設定における i 番目の穴の接続先のオフセット
-     * @description 初期設定においてプラグボード側から i 番目の穴に入った信号が j 番目の穴から出てくるとき、i + _initialOffsetTable[i] = j (mod 26) が成り立つ。
-     * @example 初期設定においてプラグボード側から 4 番目の穴に入った信号が 9 番目の穴から出てくる場合 _initialOffsetTable[4] = (26 を法として 5 と合同な整数) となる。
+     * @description 初期設定においてプラグボード側から i 番目の穴に入った信号が j 番目の穴から出てくるとき、i + _initialOffsetTable[i] = j (mod |alphabet|) が成り立つ。
+     * @example 初期設定においてプラグボード側から 4 番目の穴に入った信号が 9 番目の穴から出てくる場合 _initialOffsetTable[4] = (|alphabet| を法として 5 と合同な整数) となる。
      */
     private _initialOffsetTable: number[];
 
     /**
      * _initialOffsetTable の逆テーブル
-     * @description 初期設定においてリフレクタ側から i 番目の穴に入った信号が j 番目の穴から出てくるとき、i + _initialReverseOffsetTable[i] = j (mod 26) が成り立つ。
-     * @example 初期設定においてリフレクタ側から 7 番目の穴に入った信号が 3 番目の穴から出てくる場合 _initialReverseOffsetTable[7] = (26 を法として -4 と合同な整数) となる。
+     * @description 初期設定においてリフレクタ側から i 番目の穴に入った信号が j 番目の穴から出てくるとき、i + _initialReverseOffsetTable[i] = j (mod |alphabet|) が成り立つ。
+     * @example 初期設定においてリフレクタ側から 7 番目の穴に入った信号が 3 番目の穴から出てくる場合 _initialReverseOffsetTable[7] = (|alphabet| を法として -4 と合同な整数) となる。
      */
-    private _initialReverseOffsetTable = Array(26);
+    private _initialReverseOffsetTable: number[];
 
     /**
      * リングが現在何文字分回転しているか
@@ -115,32 +190,80 @@ class Rotor {
     private _initialTurnOvers: number[];
 
     /**
-     * リングの回転を指定する setter。i 番目のアルファベットを渡すとリングを初期設定から i 文字分回した状態にする。
+     * 剰余演算を行うオブジェクト
      */
-    set ring(char: string) { this._ringRotation = char.charCodeAt(0) - 'A'.charCodeAt(0); }
+    private get mod() { return mod(this._alphabet.size); }
 
     /**
-     * ロータ自体の回転を指定する setter。i 番目のアルファベットを渡すとロータを初期設定から i 文字分回した状態にする。
+     * 使用するアルファベット
      */
-    set rotation(char: string) { this._rotation = char.charCodeAt(0) - 'A'.charCodeAt(0); }
+    get alphabet() { return this._alphabet; }
 
     /**
-     * @param initialOffsetTableStr 全ての大文字アルファベットを一つずつ含む文字列。initialOffsetTableStr[i] = (j 番目のアルファベット) であることは、初期設定においてプラグボード側から i 番目の穴に入った信号が j 番目の穴から出てくることを意味する。
-    　* @param turnOverChars 任意個の大文字アルファベット。n 番目のアルファベットは初期設定において n 番目の穴が「隣のロータに回転を誘発する穴」であることを意味する。
+     * リングの回転を指定する setter。i 番目の文字を渡すとリングを初期設定から i 文字分回した状態にする。
+     * @param char リング設定を表す文字
+     * @throws {Error} char はアルファベット内に含まれていなければならない。
      */
-    constructor(initialOffsetTableStr: string, ...turnOverChars: string[]) {
-        this._initialOffsetTable = [...initialOffsetTableStr].map((initialOffsetChar, i) =>  initialOffsetChar.charCodeAt(0) - ('A'.charCodeAt(0) + i));
-        this._initialOffsetTable.forEach((initialOffset, i) => this._initialReverseOffsetTable[Mod26.add(i, initialOffset)] = -initialOffset);
-        this._initialTurnOvers = turnOverChars.map(turnOverChar => turnOverChar.charCodeAt(0) - 'A'.charCodeAt(0));
+    set ring(char: string) {
+        const idx = this._alphabet.indexOf(char);
+        if (idx === undefined) {
+            throw Error(`{char} is not in "alphabet"`);
+        }
+        this._ringRotation = idx;
+    }
+
+    /**
+     * ロータ自体の回転を指定する setter。i 番目の文字を渡すとロータを初期設定から i 文字分回した状態にする。
+     * @param char ロータ設定を表す文字
+     * @throws {Error} char はアルファベット内に含まれていなければならない。
+     */
+    set rotation(char: string) {
+        const idx = this._alphabet.indexOf(char);
+        if (idx === undefined) {
+            throw Error(`{char} is not in "alphabet".`);
+        }
+        this._rotation = idx;
+    }
+
+    /**
+     * @param alphabet 使用するアルファベット
+     * @param initialOffsetTableStr alphabet 内の全ての文字を一つずつ含む文字列。initialOffsetTableStr[i] = (j 番目の文字) であることは、初期設定においてプラグボード側から i 番目の穴に入った信号が j 番目の穴から出てくることを意味する。
+     * @param turnOverChars alphabet 内の任意個の文字。n 番目の文字は初期設定において n 番目の穴が「隣のロータに回転を誘発する穴」であることを意味する。
+     * @throws {Error} alphabet の大きさと initialOffsetTableStr の長さは一致していなければならない。
+     * @throws {Error} initialOffsetTableStr は alphabet が含まない文字を含んでいてはならない。
+     * @throws {Error} turnOverChars は alphabet が含まない文字を含んでいてはならない。
+     * @description initialOffsetTableStr が以上の例外条件に抵触せず、なおかつ重複する文字を含んでしまっている場合は未定義。
+     */
+    constructor(alphabet: Alphabet, initialOffsetTableStr: string, ...turnOverChars: string[]) {
+        if (alphabet.size !== initialOffsetTableStr.length) {
+            throw Error('|alphabet| must be equal to |initialOffsetTableStr|');
+        }
+        this._alphabet = alphabet;
+        this._initialOffsetTable = [...initialOffsetTableStr].map((initialOffsetChar, i) => {
+            const idx = this._alphabet.indexOf(initialOffsetChar);
+            if (idx === undefined) {
+                throw Error(`${initialOffsetChar} is not in "alphabet".`);
+            }
+            return idx - i;
+        });
+        this._initialReverseOffsetTable = new Array(this._initialOffsetTable.length);
+        this._initialOffsetTable.forEach((initialOffset, i) => this._initialReverseOffsetTable[this.mod.add(i, initialOffset)] = -initialOffset);
+        this._initialTurnOvers = turnOverChars.map(turnOverChar => {
+            const idx = this._alphabet.indexOf(turnOverChar);
+            if (idx === undefined) {
+                throw Error(`${turnOverChar} is not in "alphabet".`);
+            }
+            return idx;
+        });
     }
 
     /**
      * ある穴が「隣のロータに回転を誘発する穴」であるか判定する
-     * @param n 穴の番号、もしくは 26 を法としてそれと合同な数
+     * @param n 穴の番号、もしくは |alphabet| を法としてそれと合同な数
      * @returns 現時点で n 番目の穴が「隣のロータに回転を誘発する穴」であるか否か
      */
     isTurnOver(n: number) {
-        return this._initialTurnOvers.some(initialTurnOver => Mod26.isCongruent(n + this._rotation, initialTurnOver));
+        return this._initialTurnOvers.some(initialTurnOver => this.mod.isCongruent(n + this._rotation, initialTurnOver));
     }
 
     /**
@@ -154,20 +277,20 @@ class Rotor {
 
     /**
      * プラグボード側から入ってきた信号の行き先
-     * @param n 穴の番号（あるいは 26 を法としてそれと合同な数）
-     * @returns 出口となる穴の番号（0 以上 26 未満）
+     * @param n 穴の番号、もしくは |alphabet| を法としてそれと合同な数
+     * @returns 出口となる穴の番号（0 以上 |alphabet| 未満）
      */
     passInward(n: number) {
-        return Mod26.add(n, this._initialOffsetTable[Mod26.sub(n + this._rotation, this._ringRotation)]);
+        return this.mod.add(n, this._initialOffsetTable[this.mod.sub(n + this._rotation, this._ringRotation)]);
     }
 
     /**
      * リフレクタ側から入ってきた信号の行き先
-     * @param n 穴の番号（あるいは 26 を法としてそれと合同な数）
-     * @returns 出口となる穴の番号（0 以上 26 未満）
+     * @param n 穴の番号、もしくは |alphabet| を法としてそれと合同な数
+     * @returns 出口となる穴の番号（0 以上 |alphabet| 未満）
      */
     passOutward(n: number) {
-        return Mod26.add(n, this._initialReverseOffsetTable[Mod26.sub(n + this._rotation, this._ringRotation)]);
+        return this.mod.add(n, this._initialReverseOffsetTable[this.mod.sub(n + this._rotation, this._ringRotation)]);
     }
 }
 
@@ -177,24 +300,52 @@ class Rotor {
  */
 class Reflector {
     /**
+     * @see {@link alphabet}
+     */
+    private _alphabet: Alphabet;
+
+    /**
      * i 番目の穴の接続先のオフセット
      */
     private _offsetTable: number[];
 
     /**
-     * @param offsetTableStr 全ての大文字アルファベットを一つずつ含む文字列。offsetTableStr[i] = (j 番目のアルファベット) であることは、i 番目の穴に入った信号が j 番目の穴から出てくることを意味する。
+     * 剰余演算を行うオブジェクト
      */
-    constructor(offsetTableStr: string) {
-        this._offsetTable = [...offsetTableStr].map((offsetChar, i) => offsetChar.charCodeAt(0) - ('A'.charCodeAt(0) + i));
+    private get mod() { return mod(this._alphabet.size); }
+
+    /**
+     * 使用するアルファベット
+     */
+    get alphabet() { return this._alphabet; }
+
+    /**
+     * @param offsetTableStr alphabet 内の全ての文字を一つずつ含む文字列。offsetTableStr[i] = (j 番目の文字) であることは、i 番目の穴に入った信号が j 番目の穴から出てくることを意味する。
+     * @throws {Error} alphabet の大きさと offsetTableStr の長さは一致していなければならない。
+     * @throws {Error} offsetTableStr は alphabet が含まない文字を含んでいてはならない。
+     * @description offsetTableStr が以上の例外条件に抵触せず、なおかつ重複する文字を含んでしまっている場合は未定義。
+     */
+    constructor(alphabet: Alphabet, offsetTableStr: string) {
+        if (alphabet.size !== offsetTableStr.length) {
+            throw Error('|alphabet| must be equal to |offsetTableStr|');
+        }
+        this._alphabet = alphabet;
+        this._offsetTable = [...offsetTableStr].map((offsetChar, i) => {
+            const idx = this._alphabet.indexOf(offsetChar);
+            if (idx === undefined) {
+                throw Error(`${offsetChar} is not in "alphabet".`);
+            }
+            return idx - i;
+        });
     }
 
     /**
      * 入ってきた信号の行き先
-     * @param n 穴の番号（あるいは 26 を法としてそれと合同な数）
-     * @returns 出口となる穴の番号（0 以上 26 未満）
+     * @param n 穴の番号、もしくは |alphabet| を法としてそれと合同な数
+     * @returns 出口となる穴の番号（0 以上 |alphabet| 未満）
      */
     pass(n: number) {
-        return Mod26.add(n, this._offsetTable[n]);
+        return this.mod.add(n, this._offsetTable[n]);
     }
 }
 
@@ -236,13 +387,21 @@ abstract class AbstractEnigma {
      * @param plugBoard プラグボード
      * @param rotors ロータの配列（プラグボードに近い順）
      * @param reflector リフレクタ
-     * @param ringSetting 大文字アルファベットからなる文字列。i 文字目が j 番目のアルファベットであることは i 番目のロータのリングを j 文字分回転させてから使うことを意味する。
-     * @param rotationSetting 大文字アルファベットからなる文字列。i 文字目が j 番目のアルファベットであることは i 番目のロータを j 文字分回転させてから使うことを意味する。
+     * @param ringSetting アルファベット内の文字からなる文字列。i 文字目がアルファベット内の j 番目の文字であることは i 番目のロータのリングを j 文字分回転させてから使うことを意味する。使用するロータの数と同じ長さでなければならない。
+     * @param rotationSetting アルファベット内の文字からなる文字列。i 文字目がアルファベット内の j 番目の文字であることは i 番目のロータを j 文字分回転させてから使うことを意味する。使用するロータの数と同じ長さでなければならない。
+     * @throws {Error} plugBoard, rotors, reflector の使用しているアルファベットはすべて同一でなければならない。
+     * @throws {Error} ringSetting と rotationSetting の長さはロータの数と一致しなければならない。
      */
     constructor(plugBoard: PlugBoard, rotors: Rotor[], reflector: Reflector, ringSetting: string, rotationSetting: string) {
+        if (![...rotors.map(rotor => rotor.alphabet), reflector.alphabet].every(alphabet => alphabet.eqauls(plugBoard.alphabet))) {
+            throw Error('alphabets of plugBoard, rotors, and reflector must be much.');
+        }
         this._plugBoard = plugBoard;
         this._rotors = rotors;
         this._reflector = reflector;
+        if (rotors.length != ringSetting.length || rotors.length != rotationSetting.length) {
+            throw Error('count of rotors and lengths of ringSetting and rotationSetting must be much.');
+        }
         rotors.forEach((rotor, i) => rotor.ring = ringSetting.charAt(i));
         rotors.forEach((rotor, i) => rotor.rotation = rotationSetting.charAt(i));
     }
@@ -251,9 +410,14 @@ abstract class AbstractEnigma {
      * @summary 文字を入力されたことによる信号が通過することになる穴の一覧を返却する。
      * @param char 入力する文字
      * @returns 信号が通過する穴の番号の一覧 (exchangedIn: プラグボードから出た信号が入っていく穴 / rotorsIn: 各ロータからリフレクタ側に向かって出ていった信号が入っていく穴 / reflected: リフレクタから出た信号が入っていく穴 / rotorsOut: 各ロータからプラグボード側に向かって出ていった信号が入っていく穴 / exchangedOut: プラグボードのどこから出てくるか)
+     * @throws {Error} char はアルファベット内に含まれていなければならない。
      */
     getPath(char: string) {
-        const exchangedIn = this._plugBoard.exchangeTable[char.charCodeAt(0) - 'A'.charCodeAt(0)];
+        const idx = this._plugBoard.alphabet.indexOf(char);
+        if (idx === undefined) {
+            throw Error(`${char} is not in the alphabet.`);
+        }
+        const exchangedIn = this._plugBoard.exchangeTable[idx];
         const rotorsIn = Array<number>();
         for (const rotor of this.rotors) {
             rotorsIn.push(
@@ -284,6 +448,7 @@ abstract class AbstractEnigma {
      * 文字列を暗号化する
      * @param str 暗号化する文字列
      * @returns 暗号化された文字列
+     * @throws str 内にアルファベット内に含まれていない文字が含まれていてはいけない。
      */
     encrypt(str: string) {
         return [...str].map(char => {
@@ -292,14 +457,16 @@ abstract class AbstractEnigma {
                     break;
                 }
             }
-            return String.fromCharCode('A'.charCodeAt(0) + this.getPath(char).exchangedOut);
+            const encrypted = this.plugBoard.alphabet.at(this.getPath(char).exchangedOut);
+            if (encrypted === undefined) {
+                throw Error(`${char} in str is not in the alphabet.`);
+            }
+            return encrypted;
         }).join('');
     }
 
     /**
-     * 文字列を復号する
-     * @param str 復号する文字列
-     * @returns 復号された文字列
+     * @see {@link encrypt}
      * @description エニグマによる復号の手順は暗号化の手順と同じ（つまりある文字列を同じ設定で二回暗号化すると元に戻る）ため、この関数はただの encrypt() のラッパである。
      */
     decrypt(str: string) {
@@ -311,14 +478,14 @@ abstract class AbstractEnigma {
  * エニグマ I の実装
  */
 class EnigmaI extends AbstractEnigma {
-    static get rotorI() { return new Rotor('EKMFLGDQVZNTOWYHXUSPAIBRCJ', 'Q'); }
-    static get rotorII() { return new Rotor('AJDKSIRUXBLHWTMCQGZNPYFVOE', 'E'); }
-    static get rotorIII() { return new Rotor('BDFHJLCPRTXVZNYEIWGAKMUSQO', 'V'); }
-    static get rotorIV() { return new Rotor('ESOVPZJAYQUIRHXLNFTGKDCMWB', 'J'); }
-    static get rotorV() { return new Rotor('VZBRGITYUPSDNHLXAWMJQOFECK', 'Z'); }
-    static get reflectorA() { return new Reflector('EJMZALYXVBWFCRQUONTSPIKHGD'); }
-    static get reflectorB() { return new Reflector('YRUHQSLDPXNGOKMIEBFZCWVJAT'); }
-    static get reflectorC() { return new Reflector('FVPJIAOYEDRZXWGCTKUQSBNMHL'); }
+    static get rotorI() { return new Rotor(Alphabet.capitalLatin, 'EKMFLGDQVZNTOWYHXUSPAIBRCJ', 'Q'); }
+    static get rotorII() { return new Rotor(Alphabet.capitalLatin, 'AJDKSIRUXBLHWTMCQGZNPYFVOE', 'E'); }
+    static get rotorIII() { return new Rotor(Alphabet.capitalLatin, 'BDFHJLCPRTXVZNYEIWGAKMUSQO', 'V'); }
+    static get rotorIV() { return new Rotor(Alphabet.capitalLatin, 'ESOVPZJAYQUIRHXLNFTGKDCMWB', 'J'); }
+    static get rotorV() { return new Rotor(Alphabet.capitalLatin, 'VZBRGITYUPSDNHLXAWMJQOFECK', 'Z'); }
+    static get reflectorA() { return new Reflector(Alphabet.capitalLatin, 'EJMZALYXVBWFCRQUONTSPIKHGD'); }
+    static get reflectorB() { return new Reflector(Alphabet.capitalLatin, 'YRUHQSLDPXNGOKMIEBFZCWVJAT'); }
+    static get reflectorC() { return new Reflector(Alphabet.capitalLatin, 'FVPJIAOYEDRZXWGCTKUQSBNMHL'); }
 
     /**
      * @param plugBoard see {@link AbstractEnigma.constructor}
@@ -349,13 +516,13 @@ class M4 extends AbstractEnigma {
     static get rotorIII() { return EnigmaI.rotorIII; }
     static get rotorIV() { return EnigmaI.rotorIV; }
     static get rotorV() { return EnigmaI.rotorV; }
-    static get rotorVI() { return new Rotor('JPGVOUMFYQBENHZRDKASXLICTW', 'Z', 'M'); }
-    static get rotorVII() { return new Rotor('NZJHGRCXMYSWBOUFAIVLPEKQDT', 'Z', 'M'); }
-    static get rotorVIII() { return new Rotor('FKQHTLXOCBJSPDZRAMEWNIUYGV', 'Z', 'M'); }
-    static get rotorBeta() { return new Rotor('LEYJVCNIXWPBQMDRTAKZGFUHOS'); }
-    static get rotorGumma() { return new Rotor('FSOKANUERHMBTIYCWLQPZXVGJD'); }
-    static get reflectorB() { return new Reflector('ENKQAUYWJICOPBLMDXZVFTHRGS'); }
-    static get reflectorC() { return new Reflector('RDOBJNTKVEHMLFCWZAXGYIPSUQ'); }
+    static get rotorVI() { return new Rotor(Alphabet.capitalLatin, 'JPGVOUMFYQBENHZRDKASXLICTW', 'Z', 'M'); }
+    static get rotorVII() { return new Rotor(Alphabet.capitalLatin, 'NZJHGRCXMYSWBOUFAIVLPEKQDT', 'Z', 'M'); }
+    static get rotorVIII() { return new Rotor(Alphabet.capitalLatin, 'FKQHTLXOCBJSPDZRAMEWNIUYGV', 'Z', 'M'); }
+    static get rotorBeta() { return new Rotor(Alphabet.capitalLatin, 'LEYJVCNIXWPBQMDRTAKZGFUHOS'); }
+    static get rotorGumma() { return new Rotor(Alphabet.capitalLatin, 'FSOKANUERHMBTIYCWLQPZXVGJD'); }
+    static get reflectorB() { return new Reflector(Alphabet.capitalLatin, 'ENKQAUYWJICOPBLMDXZVFTHRGS'); }
+    static get reflectorC() { return new Reflector(Alphabet.capitalLatin, 'RDOBJNTKVEHMLFCWZAXGYIPSUQ'); }
 
     /**
      * @param plugBoard see {@link AbstractEnigma.constructor}
@@ -366,6 +533,7 @@ class M4 extends AbstractEnigma {
      * @param reflector see {@link AbstractEnigma.constructor}
      * @param ringSetting see {@link AbstractEnigma.constructor}
      * @param rotationSetting see {@link AbstractEnigma.constructor}
+     * @throw {Error} ringSetting と rotationSetting の長さは 4 でなければならない。
      */
     constructor(
         plugBoard: PlugBoard,
@@ -374,18 +542,22 @@ class M4 extends AbstractEnigma {
         ringSetting: string,
         rotationSetting: string
     ) {
+        if (ringSetting.length != 4 || rotationSetting.length != 4) {
+            throw Error('length of ringSetting and rotationSetting must be 4.');
+        }
         additionalRotor.ring = ringSetting.charAt(3);
         additionalRotor.rotation = rotationSetting.charAt(3);
         super(
             plugBoard,
             [rotor1, rotor2, rotor3],
             new Reflector(
-                [...Array(26).keys()].map(
-                    i => String.fromCharCode('A'.charCodeAt(0) + additionalRotor.passOutward(reflector.pass(additionalRotor.passInward(i))))
+                Alphabet.capitalLatin,
+                [...Array(plugBoard.alphabet.size).keys()].map(
+                    i => plugBoard.alphabet.at(additionalRotor.passOutward(reflector.pass(additionalRotor.passInward(i))))
                 ).join('')
             ),
-            ringSetting,
-            rotationSetting
+            ringSetting.slice(0, 3),
+            rotationSetting.slice(0, 3)
         );
     }
 }

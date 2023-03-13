@@ -1,10 +1,10 @@
 'use strict';
 
 import assert from 'assert';
-import { EnigmaI, PlugBoard } from './enigma';
+import { Alphabet, EnigmaI, PlugBoard } from './enigma';
 
 const enigma = new EnigmaI(
-    new PlugBoard(['A', 'M'], ['F', 'I'], ['N', 'V'], ['P', 'S'], ['T', 'U'], ['W', 'Z']),
+    new PlugBoard(Alphabet.capitalLatin, ['A', 'M'], ['F', 'I'], ['N', 'V'], ['P', 'S'], ['T', 'U'], ['W', 'Z']),
     EnigmaI.rotorI,
     EnigmaI.rotorII,
     EnigmaI.rotorIII,

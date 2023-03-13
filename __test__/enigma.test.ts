@@ -1,12 +1,12 @@
 'use strict';
 
-import { PlugBoard, M4 } from '../src/enigma';
+import { Alphabet, PlugBoard, M4 } from '../src/enigma';
 
 /* SOURCE: https://www.bytereef.org/m4-project-first-break.html */
 test('M4 FIRST BROKEN MESSAGE', () => {
     expect(
         new M4(
-            new PlugBoard(['A', 'T'], ['B', 'L'], ['D', 'F'], ['G', 'J'], ['H', 'M'], ['N', 'W'], ['O', 'P'], ['Q', 'Y'], ['R', 'Z'], ['V', 'X']),
+            new PlugBoard(Alphabet.capitalLatin, ['A', 'T'], ['B', 'L'], ['D', 'F'], ['G', 'J'], ['H', 'M'], ['N', 'W'], ['O', 'P'], ['Q', 'Y'], ['R', 'Z'], ['V', 'X']),
             M4.rotorI,
             M4.rotorIV,
             M4.rotorII,
@@ -26,7 +26,7 @@ test('M4 FIRST BROKEN MESSAGE', () => {
 test('M4 SECOND BROKEN MESSAGE', () => {
     expect(
         new M4(
-            new PlugBoard(['A', 'T'], ['C', 'L'], ['D', 'H'], ['E', 'P'], ['F', 'G'], ['I', 'O'], ['J', 'N'], ['K', 'Q'], ['M', 'U'], ['R', 'X']),
+            new PlugBoard(Alphabet.capitalLatin, ['A', 'T'], ['C', 'L'], ['D', 'H'], ['E', 'P'], ['F', 'G'], ['I', 'O'], ['J', 'N'], ['K', 'Q'], ['M', 'U'], ['R', 'X']),
             M4.rotorI,
             M4.rotorIV,
             M4.rotorII,
@@ -46,7 +46,7 @@ test('M4 SECOND BROKEN MESSAGE', () => {
 test('M4 FINAL BROKEN MESSAGE', () => {
     expect(
         new M4(
-            new PlugBoard(['B', 'Q'], ['C', 'R'], ['D', 'I'], ['E', 'J'], ['K', 'W'], ['M', 'T'], ['O', 'S'], ['P', 'X'], ['U', 'Z'], ['G', 'H']),
+            new PlugBoard(Alphabet.capitalLatin, ['B', 'Q'], ['C', 'R'], ['D', 'I'], ['E', 'J'], ['K', 'W'], ['M', 'T'], ['O', 'S'], ['P', 'X'], ['U', 'Z'], ['G', 'H']),
             M4.rotorIII,
             M4.rotorI,
             M4.rotorVI,
