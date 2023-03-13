@@ -41,9 +41,25 @@ const getDrawingProperty = () => {
         rotorInternalRadius: rotorInternalRadius,
         holeRadius: holeRadius,
         smallHoleRadius: smallHoleRadius,
-        holeCoord: (n: number, inOut: 'in' | 'out') => ({
-            x: (inOut == 'in' ? rotorInternalRadius : rotorRadius) * Math.cos(2 * Math.PI / enigma.alphabet.size * n - Math.PI / 2),
-            y: (inOut == 'in' ? rotorInternalRadius : rotorRadius) * Math.sin(2 * Math.PI / enigma.alphabet.size * n - Math.PI / 2)
+        plugBoardSize: {
+            width: 4 * rotorRadius + padding,
+            height: 2 * rotorRadius
+        },
+        absolutePlugBoardCenterCoord: {
+            x: 4 * rotorRadius + 2.5 * padding,
+            y: 3 * rotorRadius + 2 * padding
+        },
+        absoluteReflectorCenterCoord: {
+            x: rotorRadius + padding,
+            y: 3 * rotorRadius + 2 * padding
+        },
+        getAbsoluteRotorCenterCoords: (n: number) => ({
+            x: ((enigma.rotors.length - (n + 1)) * 2 + 1) * rotorRadius + (enigma.rotors.length - n) * padding,
+            y: rotorRadius + padding
+        }),
+        getAbsoluteHoleCoord: (n: number, c: {x: number, y: number}, inOut: 'in' | 'out') => ({
+            x: (inOut == 'in' ? rotorInternalRadius : rotorRadius) * Math.cos(2 * Math.PI / enigma.alphabet.size * n - Math.PI / 2) + c.x,
+            y: (inOut == 'in' ? rotorInternalRadius : rotorRadius) * Math.sin(2 * Math.PI / enigma.alphabet.size * n - Math.PI / 2) + c.y
         })
     };
 };
@@ -64,20 +80,18 @@ setInterval(() => {
     const path = enigma.getPath(char);
     const dp = getDrawingProperty();
     context.clearRect(0, 0, canvas.width, canvas.height);
-    context.save();
     /* draw plugboard */
-    context.translate(4 * dp.rotorRadius + 2.5 * dp.padding, 3 * dp.rotorRadius + 2 * dp.padding);
     /* なんか setInterval の外で設定すると反映されない */
     context.textAlign = 'center';
     context.textBaseline = 'middle';
     enigma.plugBoard.exchangeTable.forEach((exchangee, i) => {
         const from = {
-            x: (4 * dp.rotorRadius + dp.padding) * (i / (enigma.alphabet.size - 1) - 0.5),
-            y: dp.rotorRadius
+            x: dp.absolutePlugBoardCenterCoord.x + dp.plugBoardSize.width * (i / (enigma.alphabet.size - 1) - 0.5),
+            y: dp.absolutePlugBoardCenterCoord.y + dp.plugBoardSize.height / 2
         };
         const to = {
-            x: (4 * dp.rotorRadius + dp.padding) * (exchangee / (enigma.alphabet.size - 1) - 0.5),
-            y: -dp.rotorRadius
+            x: dp.absolutePlugBoardCenterCoord.x + dp.plugBoardSize.width * (exchangee / (enigma.alphabet.size - 1) - 0.5),
+            y: dp.absolutePlugBoardCenterCoord.y - dp.plugBoardSize.height / 2
         };
         /* draw characters */
         context.fillText(enigma.alphabet.at(i), from.x, from.y);
@@ -93,27 +107,21 @@ setInterval(() => {
             : 'black';
         context.stroke();
         /* to next rotor */
-        const hole = dp.holeCoord(exchangee, 'out');
-        const nextRotor = {
-            x: hole.x + dp.rotorRadius + dp.padding / 2,
-            y: hole.y - (2 * dp.rotorRadius + dp.padding)
-        };
+        const nextRotorCoord = dp.getAbsoluteHoleCoord(exchangee, dp.getAbsoluteRotorCenterCoords(0), 'out');
         context.beginPath();
         context.moveTo(to.x, to.y);
-        context.lineTo(nextRotor.x, nextRotor.y);
+        context.lineTo(nextRotorCoord.x, nextRotorCoord.y);
         context.strokeStyle =
-            exchangee == path.exchangedIn ? createGradient(to.x, to.y, nextRotor.x, nextRotor.y, 1 / 17) /* 1 */
-            : exchangee == path.exchangedOut ? createGradient(nextRotor.x, nextRotor.y, to.x, to.y, 15 / 17) /* 15 */
+            exchangee == path.exchangedIn ? createGradient(to.x, to.y, nextRotorCoord.x, nextRotorCoord.y, 1 / 17) /* 1 */
+            : exchangee == path.exchangedOut ? createGradient(nextRotorCoord.x, nextRotorCoord.y, to.x, to.y, 15 / 17) /* 15 */
             : 'lightgray';
         context.stroke();
     });
     /* draw rotors */
-    context.translate(dp.rotorRadius + dp.padding / 2, -(2 * dp.rotorRadius + dp.padding));
     enigma.rotors.forEach((rotor, i) => {
-        const isLastRotor = i == enigma.rotors.length - 1;
         for (let j = 0; j < enigma.alphabet.size; ++j) {
-            const holeFrom = dp.holeCoord(j, 'out');
-            const holeTo = dp.holeCoord(rotor.passInward(j), 'in');
+            const holeFrom = dp.getAbsoluteHoleCoord(j, dp.getAbsoluteRotorCenterCoords(i), 'out');
+            const holeTo = dp.getAbsoluteHoleCoord(rotor.passInward(j), dp.getAbsoluteRotorCenterCoords(i), 'in');
             /* draw hole */
             context.beginPath();
             context.arc(holeFrom.x, holeFrom.y, dp.holeRadius, 0, 2 * Math.PI);
@@ -141,31 +149,24 @@ setInterval(() => {
             /* to next rotor */
             context.beginPath();
             context.moveTo(holeTo.x, holeTo.y);
-            const nextRotor = isLastRotor ? {
-                x: holeTo.x * (dp.rotorRadius / dp.rotorInternalRadius),
-                y: holeTo.y * (dp.rotorRadius / dp.rotorInternalRadius) + (2 * dp.rotorRadius + dp.padding)
-            } : {
-                x: holeTo.x * (dp.rotorRadius / dp.rotorInternalRadius) - (2 * dp.rotorRadius + dp.padding),
-                y: holeTo.y * (dp.rotorRadius / dp.rotorInternalRadius)
-            };
-            context.lineTo(nextRotor.x, nextRotor.y);
+            const nextHoleCoord = dp.getAbsoluteHoleCoord(
+                rotor.passInward(j),
+                i == enigma.rotors.length - 1 ? dp.absoluteReflectorCenterCoord : dp.getAbsoluteRotorCenterCoords(i + 1),
+                'out'
+            );
+            context.lineTo(nextHoleCoord.x, nextHoleCoord.y);
             context.strokeStyle =
-                rotor.passInward(j) == path.rotorsIn[i] ? createGradient(holeTo.x, holeTo.y, nextRotor.x, nextRotor.y, ((i + 1) * 2 + 1) / 17) /* 3, 5, 7 */
-                : j == path.rotorsOut[2 - i] ? createGradient(nextRotor.x, nextRotor.y, holeTo.x, holeTo.y, ((6 - i) * 2 + 1) / 17) /* 13, 11, 9 */
+                rotor.passInward(j) == path.rotorsIn[i] ? createGradient(holeTo.x, holeTo.y, nextHoleCoord.x, nextHoleCoord.y, ((i + 1) * 2 + 1) / 17) /* 3, 5, 7 */
+                : j == path.rotorsOut[2 - i] ? createGradient(nextHoleCoord.x, nextHoleCoord.y, holeTo.x, holeTo.y, ((6 - i) * 2 + 1) / 17) /* 13, 11, 9 */
                 : 'lightgray';
             context.stroke();
-        }
-        if (isLastRotor) {
-            context.translate(0, 2 * dp.rotorRadius + dp.padding);
-        } else {
-            context.translate(-(2 * dp.rotorRadius + dp.padding), 0);
         }
     });
     /* draw reflector */
     const drawns = Array<number>();
     for (let i = 0; i < enigma.alphabet.size; ++i) {
-        const holeFrom = dp.holeCoord(i, 'out');
-        const holeTo = dp.holeCoord(enigma.reflector.pass(i), 'out');
+        const holeFrom = dp.getAbsoluteHoleCoord(i, dp.absoluteReflectorCenterCoord, 'out');
+        const holeTo = dp.getAbsoluteHoleCoord(enigma.reflector.pass(i), dp.absoluteReflectorCenterCoord, 'out');
         /* draw hole */
         context.beginPath();
         context.arc(holeFrom.x, holeFrom.y, dp.holeRadius, 0, 2 * Math.PI);
@@ -185,5 +186,4 @@ setInterval(() => {
         context.stroke();
         drawns.push(enigma.reflector.pass(i));
     }
-    context.restore();
 }, 300);
