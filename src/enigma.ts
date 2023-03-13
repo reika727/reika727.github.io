@@ -354,6 +354,11 @@ class Reflector {
  */
 abstract class AbstractEnigma {
     /**
+     * @see {@link alphabet}
+     */
+    protected _alphabet: Alphabet;
+
+    /**
      * @see {@link plugBoard}
      */
     protected _plugBoard: PlugBoard;
@@ -367,6 +372,11 @@ abstract class AbstractEnigma {
      * @see {@link reflector}
      */
     protected _reflector: Reflector;
+
+    /**
+     * 使用するアルファベット
+     */
+    get alphabet() { return this._alphabet; }
 
     /**
      * プラグボード
@@ -396,6 +406,7 @@ abstract class AbstractEnigma {
         if (![...rotors.map(rotor => rotor.alphabet), reflector.alphabet].every(alphabet => alphabet.eqauls(plugBoard.alphabet))) {
             throw Error('alphabets of plugBoard, rotors, and reflector must be much.');
         }
+        this._alphabet = plugBoard.alphabet;
         this._plugBoard = plugBoard;
         this._rotors = rotors;
         this._reflector = reflector;
@@ -413,7 +424,7 @@ abstract class AbstractEnigma {
      * @throws {Error} char はアルファベット内に含まれていなければならない。
      */
     getPath(char: string) {
-        const idx = this._plugBoard.alphabet.indexOf(char);
+        const idx = this.alphabet.indexOf(char);
         if (idx === undefined) {
             throw Error(`${char} is not in the alphabet.`);
         }

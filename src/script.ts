@@ -33,7 +33,7 @@ const getDrawingProperty = () => {
     const padding = canvas.width / 16;
     const rotorRadius = padding * 2;
     const rotorInternalRadius = rotorRadius * 0.7;
-    const holeRadius = rotorRadius * Math.sin(2 * Math.PI / 26 / 2) * 0.9;
+    const holeRadius = rotorRadius * Math.sin(2 * Math.PI / enigma.alphabet.size / 2) * 0.9;
     const smallHoleRadius = rotorInternalRadius * (holeRadius / rotorRadius);
     return {
         padding: padding,
@@ -42,8 +42,8 @@ const getDrawingProperty = () => {
         holeRadius: holeRadius,
         smallHoleRadius: smallHoleRadius,
         holeCoord: (n: number, inOut: 'in' | 'out') => ({
-            x: (inOut == 'in' ? rotorInternalRadius : rotorRadius) * Math.cos(2 * Math.PI / 26 * n - Math.PI / 2),
-            y: (inOut == 'in' ? rotorInternalRadius : rotorRadius) * Math.sin(2 * Math.PI / 26 * n - Math.PI / 2)
+            x: (inOut == 'in' ? rotorInternalRadius : rotorRadius) * Math.cos(2 * Math.PI / enigma.alphabet.size * n - Math.PI / 2),
+            y: (inOut == 'in' ? rotorInternalRadius : rotorRadius) * Math.sin(2 * Math.PI / enigma.alphabet.size * n - Math.PI / 2)
         })
     };
 };
@@ -59,7 +59,7 @@ const createGradient = (x0: number, y0: number, x1: number, y1: number, hue: num
 };
 
 setInterval(() => {
-    const char = String.fromCharCode('A'.charCodeAt(0) + Math.floor(Math.random() * 26));
+    const char = enigma.alphabet.at(Math.floor(Math.random() * enigma.alphabet.size));
     enigma.encrypt(char);
     const path = enigma.getPath(char);
     const dp = getDrawingProperty();
@@ -72,15 +72,15 @@ setInterval(() => {
     context.textBaseline = 'middle';
     enigma.plugBoard.exchangeTable.forEach((exchangee, i) => {
         const from = {
-            x: (4 * dp.rotorRadius + dp.padding) * (i / 25 - 0.5),
+            x: (4 * dp.rotorRadius + dp.padding) * (i / (enigma.alphabet.size - 1) - 0.5),
             y: dp.rotorRadius
         };
         const to = {
-            x: (4 * dp.rotorRadius + dp.padding) * (exchangee / 25 - 0.5),
+            x: (4 * dp.rotorRadius + dp.padding) * (exchangee / (enigma.alphabet.size - 1) - 0.5),
             y: -dp.rotorRadius
         };
         /* draw characters */
-        context.fillText(String.fromCharCode('A'.charCodeAt(0) + i), from.x, from.y);
+        context.fillText(enigma.alphabet.at(i), from.x, from.y);
         //context.fillText(String.fromCharCode('A'.charCodeAt(0) + exchangee), to.x, to.y);
         /* draw exchange cables */
         context.beginPath();
@@ -111,7 +111,7 @@ setInterval(() => {
     context.translate(dp.rotorRadius + dp.padding / 2, -(2 * dp.rotorRadius + dp.padding));
     enigma.rotors.forEach((rotor, i) => {
         const isLastRotor = i == enigma.rotors.length - 1;
-        for (let j = 0; j < 26; ++j) {
+        for (let j = 0; j < enigma.alphabet.size; ++j) {
             const holeFrom = dp.holeCoord(j, 'out');
             const holeTo = dp.holeCoord(rotor.passInward(j), 'in');
             /* draw hole */
@@ -163,7 +163,7 @@ setInterval(() => {
     });
     /* draw reflector */
     const drawns = Array<number>();
-    for (let i = 0; i < 26; ++i) {
+    for (let i = 0; i < enigma.alphabet.size; ++i) {
         const holeFrom = dp.holeCoord(i, 'out');
         const holeTo = dp.holeCoord(enigma.reflector.pass(i), 'out');
         /* draw hole */
