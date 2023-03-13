@@ -102,7 +102,7 @@ setInterval(() => {
         context.lineTo(to.x, to.y);
         context.strokeStyle =
             exchangee == path.exchangedIn ? createGradient(from.x, from.y, to.x, to.y, 0 / 17) /* 0 */
-            : exchangee == path.exchangedOut ? createGradient(to.x, to.y, from.x, from.y, 16 / 17) /* 16 */
+            : exchangee == path.rotorsOut[path.rotorsOut.length - 1] ? createGradient(to.x, to.y, from.x, from.y, 16 / 17) /* 16 */
             : exchangee == i ? 'lightgray'
             : 'black';
         context.stroke();
@@ -113,7 +113,7 @@ setInterval(() => {
         context.lineTo(nextRotorCoord.x, nextRotorCoord.y);
         context.strokeStyle =
             exchangee == path.exchangedIn ? createGradient(to.x, to.y, nextRotorCoord.x, nextRotorCoord.y, 1 / 17) /* 1 */
-            : exchangee == path.exchangedOut ? createGradient(nextRotorCoord.x, nextRotorCoord.y, to.x, to.y, 15 / 17) /* 15 */
+            : exchangee == path.rotorsOut[path.rotorsOut.length - 1] ? createGradient(nextRotorCoord.x, nextRotorCoord.y, to.x, to.y, 15 / 17) /* 15 */
             : 'lightgray';
         context.stroke();
     });
