@@ -31,16 +31,16 @@ window.onload = window.onresize = () => {
 
 const getDrawingProperty = () => {
     const padding = canvas.width / 16;
-    const holeRadius = padding / 5;
-    const smallHoleRadius = holeRadius / 2;
     const rotorRadius = padding * 2;
     const rotorInternalRadius = rotorRadius * 0.7;
+    const holeRadius = rotorRadius * Math.sin(2 * Math.PI / 26 / 2) * 0.9;
+    const smallHoleRadius = rotorInternalRadius * (holeRadius / rotorRadius);
     return {
         padding: padding,
-        holeRadius: holeRadius,
-        smallHoleRadius: smallHoleRadius,
         rotorRadius: rotorRadius,
         rotorInternalRadius: rotorInternalRadius,
+        holeRadius: holeRadius,
+        smallHoleRadius: smallHoleRadius,
         holeCoord: (n: number, inOut: 'in' | 'out') => ({
             x: (inOut == 'in' ? rotorInternalRadius : rotorRadius) * Math.cos(2 * Math.PI / 26 * n - Math.PI / 2),
             y: (inOut == 'in' ? rotorInternalRadius : rotorRadius) * Math.sin(2 * Math.PI / 26 * n - Math.PI / 2)
