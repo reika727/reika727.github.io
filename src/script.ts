@@ -13,6 +13,21 @@ const enigma = new EnigmaI(
     'AAA'
 );
 
+/* ロータの基準円半径に対する穴の半径の比 */
+const holeRadiusRatioToRotorRadius = Math.sin(2 * Math.PI / enigma.alphabet.size / 2) * 0.9;
+
+/* ロータの基準円半径に対するバウンディングボックスの幅の比 */
+const boundingSquareSideRatioToRotorRadius = 2 * (1 + holeRadiusRatioToRotorRadius);
+
+/* ロータの基準円半径に対するパディングの比 */
+const paddingRatioToRotorRadius = Math.sin(2 * Math.PI / enigma.alphabet.size / 2) * 0.9;
+
+/* ロータの基準円半径に対するキャンバスの幅の比 */
+const canvasWidthRatioToRotorRadius = enigma.rotors.length * boundingSquareSideRatioToRotorRadius + (enigma.rotors.length + 1) * paddingRatioToRotorRadius;
+
+/* ロータの基準円半径に対するキャンバスの高さの比 */
+const canvasHeightRatioToRotorRadius = 2 * boundingSquareSideRatioToRotorRadius + 3 * paddingRatioToRotorRadius;
+
 const linesCount = 4 * enigma.rotors.length + 5;
 
 const pathWidth = 3;
@@ -20,8 +35,7 @@ const pathWidth = 3;
 const canvas = document.getElementById('myCanvas') as HTMLCanvasElement;
 
 window.onload = window.onresize = () => {
-    /* キャンバスの縦横比 */
-    const canvasWidthRatioToHeight = (enigma.rotors.length * 5 + 1) / 11;
+    const canvasWidthRatioToHeight = canvasWidthRatioToRotorRadius / canvasHeightRatioToRotorRadius;
     /* 幅が最大で画面の 95%、かつ高さが最大で画面の 2/3 を満たしつつなるべく大きくする */
     const maxWidth = document.documentElement.clientWidth * .95;
     const maxHeight = document.documentElement.clientHeight * (2 / 3);
@@ -32,32 +46,31 @@ window.onload = window.onresize = () => {
 };
 
 const getDrawingProperty = () => {
-    const padding = canvas.width / (enigma.rotors.length * 5 + 1);
-    const rotorRadius = padding * 2;
-    const rotorInternalRadius = rotorRadius * 0.7;
-    const holeRadius = rotorRadius * Math.sin(2 * Math.PI / enigma.alphabet.size / 2) * 0.9;
-    const smallHoleRadius = rotorInternalRadius * (holeRadius / rotorRadius);
+    const rotorRadius = canvas.width / canvasWidthRatioToRotorRadius;
+    const rotorInternalRadius = rotorRadius * 0.7; /* HACK: 0.7 という倍率に深い意味はない */
+    const holeRadius = rotorRadius * holeRadiusRatioToRotorRadius;
+    const boundingSquareSide = rotorRadius * boundingSquareSideRatioToRotorRadius;
+    const padding = rotorRadius * paddingRatioToRotorRadius;
+    const plugBoardWidth = (enigma.rotors.length - 1) * boundingSquareSide + (enigma.rotors.length - 2) * padding;
+    const plugBoardHeight = boundingSquareSide;
     return {
-        padding: padding,
-        rotorRadius: rotorRadius,
-        rotorInternalRadius: rotorInternalRadius,
         holeRadius: holeRadius,
-        smallHoleRadius: smallHoleRadius,
+        smallHoleRadius: holeRadius * (rotorInternalRadius / rotorRadius),
         plugBoardSize: {
-            width:  2 * (enigma.rotors.length - 1) * rotorRadius + (enigma.rotors.length - 2) * padding,
-            height: 2 * rotorRadius
+            width: plugBoardWidth,
+            height: plugBoardHeight
         },
         absolutePlugBoardCenterCoord: {
-            x: (enigma.rotors.length + 1) * rotorRadius + (enigma.rotors.length + 2) / 2 * padding,
-            y: 3 * rotorRadius + 2 * padding
+            x: boundingSquareSide + 2 * padding + plugBoardWidth / 2,
+            y: boundingSquareSide + 2 * padding + plugBoardHeight / 2
         },
         absoluteReflectorCenterCoord: {
-            x: rotorRadius + padding,
-            y: 3 * rotorRadius + 2 * padding
+            x: boundingSquareSide / 2 + padding,
+            y: boundingSquareSide * (3 / 2) + padding * 2
         },
         getAbsoluteRotorCenterCoords: (n: number) => ({
-            x: ((enigma.rotors.length - (n + 1)) * 2 + 1) * rotorRadius + (enigma.rotors.length - n) * padding,
-            y: rotorRadius + padding
+            x: ((enigma.rotors.length - 1) - n) * boundingSquareSide + ((enigma.rotors.length - 1) - n + 1) * padding + holeRadius + rotorRadius,
+            y: boundingSquareSide / 2 + padding
         }),
         getAbsoluteHoleCoord: (n: number, c: {x: number, y: number}, inOut: 'in' | 'out') => ({
             x: (inOut == 'in' ? rotorInternalRadius : rotorRadius) * Math.cos(2 * Math.PI / enigma.alphabet.size * n - Math.PI / 2) + c.x,
