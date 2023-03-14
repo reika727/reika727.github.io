@@ -13,32 +13,16 @@ const enigma = new EnigmaI(
     'AAA'
 );
 
-/* ロータの基準円半径に対する穴の半径の比 */
-const holeRadiusRatioToRotorRadius = Math.sin(2 * Math.PI / enigma.alphabet.size / 2) * 0.9;
-
-/* ロータの基準円半径に対するバウンディングボックスの幅の比 */
-const boundingSquareSideRatioToRotorRadius = 2 * (1 + holeRadiusRatioToRotorRadius);
-
-/* ロータの基準円半径に対するパディングの比 */
-const paddingRatioToRotorRadius = Math.sin(2 * Math.PI / enigma.alphabet.size / 2) * 0.9;
-
-/* ロータの基準円半径に対するキャンバスの幅の比 */
-const canvasWidthRatioToRotorRadius = enigma.rotors.length * boundingSquareSideRatioToRotorRadius + (enigma.rotors.length + 1) * paddingRatioToRotorRadius;
-
-/* ロータの基準円半径に対するキャンバスの高さの比 */
-const canvasHeightRatioToRotorRadius = 2 * boundingSquareSideRatioToRotorRadius + 3 * paddingRatioToRotorRadius;
-
 const canvas = document.getElementById('myCanvas') as HTMLCanvasElement;
 
 window.onload = window.onresize = () => {
-    const canvasWidthRatioToHeight = canvasWidthRatioToRotorRadius / canvasHeightRatioToRotorRadius;
     /* 幅が最大で画面の 95%、かつ高さが最大で画面の 2/3 を満たしつつなるべく大きくする */
     const maxWidth = document.documentElement.clientWidth * .95;
     const maxHeight = document.documentElement.clientHeight * (2 / 3);
     [canvas.width, canvas.height] =
-        maxWidth / canvasWidthRatioToHeight <= maxHeight
-            ? [maxWidth, maxWidth / canvasWidthRatioToHeight]
-            : [maxHeight * canvasWidthRatioToHeight, maxHeight];
+        maxWidth / DrawingProperty.canvasWidthRatioToHeight <= maxHeight
+            ? [maxWidth, maxWidth / DrawingProperty.canvasWidthRatioToHeight]
+            : [maxHeight * DrawingProperty.canvasWidthRatioToHeight, maxHeight];
 };
 
 setInterval(() => {
@@ -47,51 +31,87 @@ setInterval(() => {
     drawEnigma(canvas, enigma, char);
 }, 300);
 
-function getDrawingProperty(canvas: HTMLCanvasElement) {
-    const rotorRadius = canvas.width / canvasWidthRatioToRotorRadius;
-    const rotorInternalRadius = rotorRadius * 0.7; /* HACK: 0.7 という倍率に深い意味はない */
-    const holeRadius = rotorRadius * holeRadiusRatioToRotorRadius;
-    const boundingSquareSide = rotorRadius * boundingSquareSideRatioToRotorRadius;
-    const padding = rotorRadius * paddingRatioToRotorRadius;
-    const plugBoardWidth = (enigma.rotors.length - 1) * boundingSquareSide + (enigma.rotors.length - 2) * padding;
-    const plugBoardHeight = boundingSquareSide;
-    return {
-        holeRadius: holeRadius,
-        smallHoleRadius: holeRadius * (rotorInternalRadius / rotorRadius),
-        absoluteReflectorCenterCoord: {
-            x: boundingSquareSide / 2 + padding,
-            y: boundingSquareSide * (3 / 2) + padding * 2
-        },
-        pathWidth: 3, /* HACK: これも深い意味はない */
-        getAbsolutePlugCoord: (n: number, inOut: 'in' | 'out') => ({
-            x: boundingSquareSide + 2 * padding + plugBoardWidth / 2 + plugBoardWidth * (n / (enigma.alphabet.size - 1) - 0.5),
-            y: boundingSquareSide + 2 * padding + plugBoardHeight / 2 + (inOut == 'in' ? 1 : -1) * plugBoardHeight / 2
-        }),
-        getAbsoluteRotorCenterCoords: (n: number) => ({
-            x: ((enigma.rotors.length - 1) - n) * boundingSquareSide + ((enigma.rotors.length - 1) - n + 1) * padding + holeRadius + rotorRadius,
-            y: boundingSquareSide / 2 + padding
-        }),
-        getAbsoluteHoleCoord: (n: number, c: {x: number, y: number}, inOut: 'in' | 'out') => ({
-            x: (inOut == 'in' ? rotorInternalRadius : rotorRadius) * Math.cos(2 * Math.PI / enigma.alphabet.size * n - Math.PI / 2) + c.x,
-            y: (inOut == 'in' ? rotorInternalRadius : rotorRadius) * Math.sin(2 * Math.PI / enigma.alphabet.size * n - Math.PI / 2) + c.y
-        }),
-        createGradient: (c0: {x: number, y: number}, c1: {x: number, y: number}, lineNumber: number) => {
-            const context = canvas.getContext('2d');
-            assert(context);
-            const linesCount = 4 * enigma.rotors.length + 5;
-            const lineargradient = context.createLinearGradient(c0.x, c0.y, c1.x, c1.y);
-            lineargradient.addColorStop(0, `hsl(${lineNumber / linesCount}turn, 100%, 50%)`);
-            lineargradient.addColorStop(1, `hsl(${(lineNumber + 1) / linesCount}turn, 100%, 50%)`);
-            return lineargradient;
+class DrawingProperty {
+    /* ロータの基準円半径に対する穴の半径の比 */
+    private static _holeRadiusRatioToRotorRadius = Math.sin(2 * Math.PI / enigma.alphabet.size / 2) * 0.9;
+    /* ロータの基準円半径に対するバウンディングボックスの幅の比 */
+    private static _boundingSquareSideRatioToRotorRadius = 2 * (1 + this._holeRadiusRatioToRotorRadius);
+    /* ロータの基準円半径に対するパディングの比 */
+    private static _paddingRatioToRotorRadius = Math.sin(2 * Math.PI / enigma.alphabet.size / 2) * 0.9;
+    /* ロータの基準円半径に対するキャンバスの幅の比 */
+    private static get _canvasWidthRatioToRotorRadius() {
+        return enigma.rotors.length * this._boundingSquareSideRatioToRotorRadius + (enigma.rotors.length + 1) * this._paddingRatioToRotorRadius;
+    }
+    /* ロータの基準円半径に対するキャンバスの高さの比 */
+    private static get _canvasHeightRatioToRotorRadius() {
+        return 2 * this._boundingSquareSideRatioToRotorRadius + 3 * this._paddingRatioToRotorRadius;
+    }
+    static get canvasWidthRatioToHeight() {
+        return this._canvasWidthRatioToRotorRadius / this._canvasHeightRatioToRotorRadius;
+    }
+    private _rotorRadius: number;
+    private _rotorInternalRadius: number;
+    private _boundingSquareSide: number;
+    private _padding: number;
+    private _plugBoardWidth: number;
+    private _plugBoardHeight: number;
+    get holeRadius() {
+        return this._rotorRadius * DrawingProperty._holeRadiusRatioToRotorRadius;
+    }
+    get smallHoleRadius() {
+        return this.holeRadius * (this._rotorInternalRadius / this._rotorRadius);
+    }
+    get absoluteReflectorCenterCoord() {
+        return {
+            x: this._boundingSquareSide / 2 + this._padding,
+            y: this._boundingSquareSide * (3 / 2) + this._padding * 2
+        };
+    }
+    get pathWidth() {
+        return 3; /* HACK: この値に深い意味はない */
+    }
+    constructor(canvas: HTMLCanvasElement) {
+        this._rotorRadius = canvas.width / DrawingProperty._canvasWidthRatioToRotorRadius;
+        this._rotorInternalRadius = this._rotorRadius * 0.7; /* HACK: 0.7 という倍率にも深い意味はない */
+        this._boundingSquareSide = this._rotorRadius * DrawingProperty._boundingSquareSideRatioToRotorRadius;
+        this._padding = this._rotorRadius * DrawingProperty._paddingRatioToRotorRadius;
+        this._plugBoardWidth = (enigma.rotors.length - 1) * this._boundingSquareSide + (enigma.rotors.length - 2) * this._padding;
+        this._plugBoardHeight = this._boundingSquareSide;
+    }
+    getAbsolutePlugCoord(n: number, inOut: 'in' | 'out') {
+        return {
+            x: this._boundingSquareSide + 2 * this._padding + this._plugBoardWidth / 2 + this._plugBoardWidth * (n / (enigma.alphabet.size - 1) - 0.5),
+            y: this._boundingSquareSide + 2 * this._padding + this._plugBoardHeight / 2 + (inOut == 'in' ? 1 : -1) * this._plugBoardHeight / 2
         }
-    };
-};
+    }
+    getAbsoluteRotorCenterCoords(n: number) {
+        return {
+            x: ((enigma.rotors.length - 1) - n) * this._boundingSquareSide + ((enigma.rotors.length - 1) - n + 1) * this._padding + this.holeRadius + this._rotorRadius,
+            y: this._boundingSquareSide / 2 + this._padding
+        }
+    }
+    getAbsoluteHoleCoord(n: number, c: {x: number, y: number}, inOut: 'in' | 'out') {
+        return {
+            x: (inOut == 'in' ? this._rotorInternalRadius : this._rotorRadius) * Math.cos(2 * Math.PI / enigma.alphabet.size * n - Math.PI / 2) + c.x,
+            y: (inOut == 'in' ? this._rotorInternalRadius : this._rotorRadius) * Math.sin(2 * Math.PI / enigma.alphabet.size * n - Math.PI / 2) + c.y
+        }
+    }
+    createGradient(c0: {x: number, y: number}, c1: {x: number, y: number}, lineNumber: number) {
+        const context = canvas.getContext('2d');
+        assert(context);
+        const linesCount = 4 * enigma.rotors.length + 5;
+        const lineargradient = context.createLinearGradient(c0.x, c0.y, c1.x, c1.y);
+        lineargradient.addColorStop(0, `hsl(${lineNumber / linesCount}turn, 100%, 50%)`);
+        lineargradient.addColorStop(1, `hsl(${(lineNumber + 1) / linesCount}turn, 100%, 50%)`);
+        return lineargradient;
+    }
+}
 
 function drawEnigma(canvas: HTMLCanvasElement, enigma: AbstractEnigma, pathChar: string | null = null) {
     const context = canvas.getContext('2d');
     assert(context);
     const path = pathChar ? enigma.getPath(pathChar) : null;
-    const dp = getDrawingProperty(canvas);
+    const dp = new DrawingProperty(canvas);
     context.clearRect(0, 0, canvas.width, canvas.height);
     /* draw plugboard */
     context.textAlign = 'center';
