@@ -28,6 +28,25 @@ const canvasWidthRatioToRotorRadius = enigma.rotors.length * boundingSquareSideR
 /* ロータの基準円半径に対するキャンバスの高さの比 */
 const canvasHeightRatioToRotorRadius = 2 * boundingSquareSideRatioToRotorRadius + 3 * paddingRatioToRotorRadius;
 
+const canvas = document.getElementById('myCanvas') as HTMLCanvasElement;
+
+window.onload = window.onresize = () => {
+    const canvasWidthRatioToHeight = canvasWidthRatioToRotorRadius / canvasHeightRatioToRotorRadius;
+    /* 幅が最大で画面の 95%、かつ高さが最大で画面の 2/3 を満たしつつなるべく大きくする */
+    const maxWidth = document.documentElement.clientWidth * .95;
+    const maxHeight = document.documentElement.clientHeight * (2 / 3);
+    [canvas.width, canvas.height] =
+        maxWidth / canvasWidthRatioToHeight <= maxHeight
+            ? [maxWidth, maxWidth / canvasWidthRatioToHeight]
+            : [maxHeight * canvasWidthRatioToHeight, maxHeight];
+};
+
+setInterval(() => {
+    const char = enigma.alphabet.at(Math.floor(Math.random() * enigma.alphabet.size));
+    enigma.encrypt(char);
+    drawEnigma(canvas, enigma, char);
+}, 300);
+
 function getDrawingProperty(canvas: HTMLCanvasElement) {
     const rotorRadius = canvas.width / canvasWidthRatioToRotorRadius;
     const rotorInternalRadius = rotorRadius * 0.7; /* HACK: 0.7 という倍率に深い意味はない */
@@ -177,22 +196,3 @@ function drawEnigma(canvas: HTMLCanvasElement, enigma: AbstractEnigma, pathChar:
         drawns.push(enigma.reflector.pass(i));
     }
 }
-
-const canvas = document.getElementById('myCanvas') as HTMLCanvasElement;
-
-window.onload = window.onresize = () => {
-    const canvasWidthRatioToHeight = canvasWidthRatioToRotorRadius / canvasHeightRatioToRotorRadius;
-    /* 幅が最大で画面の 95%、かつ高さが最大で画面の 2/3 を満たしつつなるべく大きくする */
-    const maxWidth = document.documentElement.clientWidth * .95;
-    const maxHeight = document.documentElement.clientHeight * (2 / 3);
-    [canvas.width, canvas.height] =
-        maxWidth / canvasWidthRatioToHeight <= maxHeight
-            ? [maxWidth, maxWidth / canvasWidthRatioToHeight]
-            : [maxHeight * canvasWidthRatioToHeight, maxHeight];
-};
-
-setInterval(() => {
-    const char = enigma.alphabet.at(Math.floor(Math.random() * enigma.alphabet.size));
-    enigma.encrypt(char);
-    drawEnigma(canvas, enigma, char);
-}, 300);
