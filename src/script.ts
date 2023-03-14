@@ -105,7 +105,7 @@ setInterval(() => {
         context.lineTo(to.x, to.y);
         [context.strokeStyle, context.lineWidth] =
             exchangee == path.exchangedIn ? [createGradient(from.x, from.y, to.x, to.y, 0), pathWidth] /* 0 */
-            : exchangee == path.rotorsOut[path.rotorsOut.length - 1] ? [createGradient(to.x, to.y, from.x, from.y, 4 * (enigma.rotors.length + 1)), pathWidth] /* 4 * |rotors| + 4 */
+            : exchangee == path.rotorsOut[path.rotorsOut.length - 1] ? [createGradient(to.x, to.y, from.x, from.y, 4 * enigma.rotors.length + 4), pathWidth] /* 4 * |rotors| + 4 */
             : exchangee == i ? ['lightgray', 1]
             : ['black', 1];
         context.stroke();
@@ -148,7 +148,7 @@ setInterval(() => {
             context.lineTo(holeTo.x, holeTo.y);
             [context.strokeStyle, context.lineWidth] =
                 rotor.passInward(j) == path.rotorsIn[i] ? [createGradient(holeFrom.x, holeFrom.y, holeTo.x, holeTo.y, 2 * i + 2), pathWidth] /* 2, 4, ... , 2 * |rotors| */
-                : j == path.rotorsOut[enigma.rotors.length - 1 - i] ? [createGradient(holeTo.x, holeTo.y, holeFrom.x, holeFrom.y, 2 * (2 * enigma.rotors.length - i + 1)), pathWidth] /* 4 * |rotors| + 2, 4 * |rotors|, ... , 2 * |rotors| + 4 */
+                : j == path.rotorsOut[enigma.rotors.length - 1 - i] ? [createGradient(holeTo.x, holeTo.y, holeFrom.x, holeFrom.y, 4 * enigma.rotors.length - 2 * i + 2), pathWidth] /* 4 * |rotors| + 2, 4 * |rotors|, ... , 2 * |rotors| + 4 */
                 : ['black', 1];
             context.stroke();
             context.lineWidth = 1;
@@ -163,7 +163,7 @@ setInterval(() => {
             context.lineTo(nextHoleCoord.x, nextHoleCoord.y);
             [context.strokeStyle, context.lineWidth] =
                 rotor.passInward(j) == path.rotorsIn[i] ? [createGradient(holeTo.x, holeTo.y, nextHoleCoord.x, nextHoleCoord.y, 2 * i + 3), pathWidth] /* 3, 5, ... , |rotors| * 2 + 1 */
-                : j == path.rotorsOut[enigma.rotors.length - 1 - i] ? [createGradient(nextHoleCoord.x, nextHoleCoord.y, holeTo.x, holeTo.y, 2 * (2 * enigma.rotors.length - i) + 1), pathWidth] /* 4 * |rotors| + 1, 4 * |rotors| - 1, ... , 2 * |rotors| + 3 */
+                : j == path.rotorsOut[enigma.rotors.length - 1 - i] ? [createGradient(nextHoleCoord.x, nextHoleCoord.y, holeTo.x, holeTo.y, 4 * enigma.rotors.length - 2 * i + 1), pathWidth] /* 4 * |rotors| + 1, 4 * |rotors| - 1, ... , 2 * |rotors| + 3 */
                 : ['lightgray', 1];
             context.stroke();
             context.lineWidth = 1;
@@ -187,8 +187,8 @@ setInterval(() => {
         context.moveTo(holeFrom.x, holeFrom.y);
         context.lineTo(holeTo.x, holeTo.y);
         [context.strokeStyle, context.lineWidth] =
-            enigma.reflector.pass(i) == path.reflected ? [createGradient(holeFrom.x, holeFrom.y, holeTo.x, holeTo.y, 2 * (enigma.rotors.length + 1)), pathWidth] /* 2 * (|rotors + 1|) */
-            : i == path.reflected ? [createGradient(holeTo.x, holeTo.y, holeFrom.x, holeFrom.y, 2 * (enigma.rotors.length + 1)), pathWidth] /* 2 * (|rotors| + 1) */
+            enigma.reflector.pass(i) == path.reflected ? [createGradient(holeFrom.x, holeFrom.y, holeTo.x, holeTo.y, 2 * enigma.rotors.length + 2), pathWidth] /* 2 * |rotors| + 2 */
+            : i == path.reflected ? [createGradient(holeTo.x, holeTo.y, holeFrom.x, holeFrom.y, 2 * enigma.rotors.length + 2), pathWidth] /* 2 * |rotors| + 2 */
             : ['black', 1];
         context.stroke();
         context.lineWidth = 1;
