@@ -56,18 +56,14 @@ const getDrawingProperty = () => {
     return {
         holeRadius: holeRadius,
         smallHoleRadius: holeRadius * (rotorInternalRadius / rotorRadius),
-        plugBoardSize: {
-            width: plugBoardWidth,
-            height: plugBoardHeight
-        },
-        absolutePlugBoardCenterCoord: {
-            x: boundingSquareSide + 2 * padding + plugBoardWidth / 2,
-            y: boundingSquareSide + 2 * padding + plugBoardHeight / 2
-        },
         absoluteReflectorCenterCoord: {
             x: boundingSquareSide / 2 + padding,
             y: boundingSquareSide * (3 / 2) + padding * 2
         },
+        getAbsolutePlugCoord: (n: number, inOut: 'in' | 'out') => ({
+            x: boundingSquareSide + 2 * padding + plugBoardWidth / 2 + plugBoardWidth * (n / (enigma.alphabet.size - 1) - 0.5),
+            y: boundingSquareSide + 2 * padding + plugBoardHeight / 2 + (inOut == 'in' ? 1 : -1) * plugBoardHeight / 2
+        }),
         getAbsoluteRotorCenterCoords: (n: number) => ({
             x: ((enigma.rotors.length - 1) - n) * boundingSquareSide + ((enigma.rotors.length - 1) - n + 1) * padding + holeRadius + rotorRadius,
             y: boundingSquareSide / 2 + padding
@@ -100,14 +96,7 @@ setInterval(() => {
     context.textAlign = 'center';
     context.textBaseline = 'middle';
     enigma.plugBoard.exchangeTable.forEach((exchangee, i) => {
-        const from = {
-            x: dp.absolutePlugBoardCenterCoord.x + dp.plugBoardSize.width * (i / (enigma.alphabet.size - 1) - 0.5),
-            y: dp.absolutePlugBoardCenterCoord.y + dp.plugBoardSize.height / 2
-        };
-        const to = {
-            x: dp.absolutePlugBoardCenterCoord.x + dp.plugBoardSize.width * (exchangee / (enigma.alphabet.size - 1) - 0.5),
-            y: dp.absolutePlugBoardCenterCoord.y - dp.plugBoardSize.height / 2
-        };
+        const from = dp.getAbsolutePlugCoord(i, 'in'), to = dp.getAbsolutePlugCoord(exchangee, 'out');
         /* draw characters */
         context.fillText(enigma.alphabet.at(i), from.x, from.y);
         //context.fillText(String.fromCharCode('A'.charCodeAt(0) + exchangee), to.x, to.y);
