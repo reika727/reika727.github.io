@@ -71,7 +71,10 @@ class DrawingProperty {
         return 3; /* HACK: この値に深い意味はない */
     }
     constructor(canvas: HTMLCanvasElement) {
-        this._rotorRadius = canvas.width / DrawingProperty._canvasWidthRatioToRotorRadius;
+        this._rotorRadius = Math.min(
+            canvas.width / DrawingProperty._canvasWidthRatioToRotorRadius,
+            canvas.height / DrawingProperty._canvasHeightRatioToRotorRadius
+        );
         this._rotorInternalRadius = this._rotorRadius * 0.7; /* HACK: 0.7 という倍率にも深い意味はない */
         this._boundingSquareSide = this._rotorRadius * DrawingProperty._boundingSquareSideRatioToRotorRadius;
         this._padding = this._rotorRadius * DrawingProperty._paddingRatioToRotorRadius;
