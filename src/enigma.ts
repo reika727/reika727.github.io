@@ -1,6 +1,6 @@
 'use strict';
 
-export { Alphabet, PlugBoard, Rotor, Reflector, EnigmaI, M4 };
+export { Alphabet, PlugBoard, Rotor, Reflector, AbstractEnigma, EnigmaI, M4 };
 
 /**
  * 与えられた整数を法とする最小非負剰余を扱う関数群
