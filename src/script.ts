@@ -13,8 +13,6 @@ const enigma = new EnigmaI(
     'AAA'
 );
 
-const canvasWidthRatioToHeight = (enigma.rotors.length * 5 + 1) / 11;
-
 const linesCount = 4 * enigma.rotors.length + 5;
 
 const pathWidth = 3;
@@ -22,17 +20,15 @@ const pathWidth = 3;
 const canvas = document.getElementById('myCanvas') as HTMLCanvasElement;
 
 window.onload = window.onresize = () => {
-    const clientWidth = document.documentElement.clientWidth;
-    const clientHeight = document.documentElement.clientHeight;
-    if (clientWidth / canvasWidthRatioToHeight <= clientHeight * 2 / 3) {
-        canvas.width = clientWidth;
-        canvas.height = canvas.width / canvasWidthRatioToHeight;
-    } else {
-        canvas.height = clientHeight * 2 / 3;
-        canvas.width = canvas.height * canvasWidthRatioToHeight;
-    }
-    canvas.width *= .95;
-    canvas.height *= .95;
+    /* キャンバスの縦横比 */
+    const canvasWidthRatioToHeight = (enigma.rotors.length * 5 + 1) / 11;
+    /* 幅が最大で画面の 95%、かつ高さが最大で画面の 2/3 を満たしつつなるべく大きくする */
+    const maxWidth = document.documentElement.clientWidth * .95;
+    const maxHeight = document.documentElement.clientHeight * (2 / 3);
+    [canvas.width, canvas.height] =
+        maxWidth / canvasWidthRatioToHeight <= maxHeight
+            ? [maxWidth, maxWidth / canvasWidthRatioToHeight]
+            : [maxHeight * canvasWidthRatioToHeight, maxHeight];
 };
 
 const getDrawingProperty = () => {
