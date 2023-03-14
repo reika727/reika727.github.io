@@ -43,7 +43,7 @@ window.onload = window.onresize = () => {
             : [maxHeight * canvasWidthRatioToHeight, maxHeight];
 };
 
-const getDrawingProperty = () => {
+function getDrawingProperty(canvas: HTMLCanvasElement) {
     const rotorRadius = canvas.width / canvasWidthRatioToRotorRadius;
     const rotorInternalRadius = rotorRadius * 0.7; /* HACK: 0.7 という倍率に深い意味はない */
     const holeRadius = rotorRadius * holeRadiusRatioToRotorRadius;
@@ -88,7 +88,7 @@ setInterval(() => {
     const char = enigma.alphabet.at(Math.floor(Math.random() * enigma.alphabet.size));
     enigma.encrypt(char);
     const path = enigma.getPath(char);
-    const dp = getDrawingProperty();
+    const dp = getDrawingProperty(canvas);
     context.clearRect(0, 0, canvas.width, canvas.height);
     /* draw plugboard */
     /* なんか setInterval の外で設定すると反映されない */
