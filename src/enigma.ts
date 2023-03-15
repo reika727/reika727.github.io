@@ -544,7 +544,7 @@ class M4 extends AbstractEnigma {
      * @param reflector see {@link AbstractEnigma.constructor}
      * @param ringSetting see {@link AbstractEnigma.constructor}
      * @param rotationSetting see {@link AbstractEnigma.constructor}
-     * @throw {Error} ringSetting と rotationSetting の長さは 4 でなければならない。
+     * @throws {Error} ringSetting と rotationSetting の長さは 4 でなければならない。
      */
     constructor(
         plugBoard: PlugBoard,
