@@ -45,8 +45,7 @@ class EnigmaIHandler {
     }
     resizeAll() {
         resizeCanvas(this._canvas, 3, Alphabet.capitalLatin.size);
-        this._textArea.style.width = this._canvas.style.width;
-        this._resultField.style.width = this._canvas.style.width;
+        (document.getElementById('enigmaI') as HTMLDivElement).style.width = this._canvas.style.width;
     }
 }
 
@@ -98,8 +97,7 @@ class IrohaEnigmaHandler {
     }
     resizeAll() {
         resizeCanvas(this._canvas, 3, IrohaEnigmaHandler.iroha.size);
-        this._textArea.style.width = this._canvas.style.width;
-        this._resultField.style.width = this._canvas.style.width;
+        (document.getElementById('irohaEnigma') as HTMLDivElement).style.width = this._canvas.style.width;
     }
 }
 
