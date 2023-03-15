@@ -145,6 +145,11 @@ function resizeCanvas(canvas: HTMLCanvasElement, enigma: AbstractEnigma) {
         maxWidth / dp.canvasWidthRatioToHeight <= maxHeight
             ? [maxWidth, maxWidth / dp.canvasWidthRatioToHeight]
             : [maxHeight * dp.canvasWidthRatioToHeight, maxHeight];
+    /* 高解像度ディスプレイ対応 */
+    canvas.width *= window.devicePixelRatio;
+    canvas.height *= window.devicePixelRatio;
+    canvas.style.width = `${canvas.width / window.devicePixelRatio}px`;
+    canvas.style.height = `${canvas.height / window.devicePixelRatio}px`;
 }
 
 function drawEnigma(context: CanvasRenderingContext2D, enigma: AbstractEnigma, pathChar: string | null = null) {
