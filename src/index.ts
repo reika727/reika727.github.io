@@ -13,17 +13,17 @@ const enigma = new EnigmaI(
     'AAA'
 );
 
-const canvas = document.getElementById('myCanvas') as HTMLCanvasElement;
+const enigmaCanvas = document.getElementById('enigmaCanvas') as HTMLCanvasElement;
 
-window.onload = window.onresize = () => { resizeCanvas(canvas); };
+window.onload = window.onresize = () => { resizeCanvas(enigmaCanvas); };
 
 setInterval(() => {
-    const context = canvas.getContext('2d');
-    assert(context);
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    const enigmaContext = enigmaCanvas.getContext('2d');
+    assert(enigmaContext);
+    enigmaContext.clearRect(0, 0, enigmaCanvas.width, enigmaCanvas.height);
     const char = enigma.alphabet.at(Math.floor(Math.random() * enigma.alphabet.size));
     enigma.encrypt(char);
-    drawEnigma(context, enigma, char);
+    drawEnigma(enigmaContext, enigma, char);
 }, 300);
 
 class DrawingProperty {
