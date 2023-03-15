@@ -107,6 +107,29 @@ function drawEnigma(canvas: HTMLCanvasElement, enigma: AbstractEnigma, pathChar:
     const path = pathChar ? enigma.getPath(pathChar) : null;
     const dp = new DrawingProperty(canvas);
     context.clearRect(0, 0, canvas.width, canvas.height);
+    const drawLine = (from: {x: number, y: number}, to: {x: number, y: number}, strokeStyle: typeof context.strokeStyle, lineWidth: number) => {
+        context.save();
+        context.beginPath();
+        context.moveTo(from.x, from.y);
+        context.lineTo(to.x, to.y);
+        context.strokeStyle = strokeStyle;
+        context.lineWidth = lineWidth;
+        context.stroke();
+        context.restore();
+    };
+    const drawCircle = (center: {x: number, y: number}, radius: number, color: string, style: 'stroke' | 'fill') => {
+        context.save();
+        context.beginPath();
+        context.arc(center.x, center.y, radius, 0, 2 * Math.PI);
+        if (style == 'stroke') {
+            context.strokeStyle = color;
+            context.stroke();
+        } else {
+            context.fillStyle = color;
+            context.fill();
+        }
+        context.restore();
+    };
     const createGradient = (from: {x: number, y: number}, to: {x: number, y: number}, lineNumber: number) => {
         const linesCount = 4 * enigma.rotors.length + 5;
         const lineargradient = context.createLinearGradient(from.x, from.y, to.x, to.y);
@@ -122,27 +145,24 @@ function drawEnigma(canvas: HTMLCanvasElement, enigma: AbstractEnigma, pathChar:
         /* draw characters */
         context.fillText(enigma.alphabet.at(charIndex), from.x, from.y);
         /* draw exchange cables */
-        context.beginPath();
-        context.moveTo(from.x, from.y);
-        context.lineTo(to.x, to.y);
-        [context.strokeStyle, context.lineWidth] =
-            plugToRotor == path?.plugToRotor ? [createGradient(from, to, 0), dp.pathWidth] /* 0 */
-            : plugToRotor == path?.holesToPrev[path.holesToPrev.length - 1] ? [createGradient(to, from, 4 * enigma.rotors.length + 4), dp.pathWidth] /* 4 * |rotors| + 4 */
-            : plugToRotor == charIndex ? ['lightgray', 1]
-            : ['black', 1];
-        context.stroke();
-        context.lineWidth = 1;
+        if (plugToRotor == path?.plugToRotor) {
+            drawLine(from, to, createGradient(from, to, 0), dp.pathWidth) /* 0 */
+        } else if (plugToRotor == path?.holesToPrev[path.holesToPrev.length - 1]) {
+            drawLine(from, to, createGradient(to, from, 4 * enigma.rotors.length + 4), dp.pathWidth) /* 4 * |rotors| + 4 */
+        } else if (plugToRotor == charIndex) {
+            drawLine(from, to, 'lightgray', 1);
+        } else {
+            drawLine(from, to, 'black', 1);
+        }
         /* to next rotor */
         const nextRotorCoord = dp.getAbsoluteHoleCoord(plugToRotor, dp.getAbsoluteRotorCenterCoords(0), 'out');
-        context.beginPath();
-        context.moveTo(to.x, to.y);
-        context.lineTo(nextRotorCoord.x, nextRotorCoord.y);
-        [context.strokeStyle, context.lineWidth] =
-            plugToRotor == path?.plugToRotor ? [createGradient(to, nextRotorCoord, 1), dp.pathWidth] /* 1 */
-            : plugToRotor == path?.holesToPrev[path.holesToPrev.length - 1] ? [createGradient(nextRotorCoord, to, 4 * enigma.rotors.length + 3), dp.pathWidth] /* 4 * |rotors| + 3 */
-            : ['lightgray', 1];
-        context.stroke();
-        context.lineWidth = 1;
+        if (plugToRotor == path?.plugToRotor) {
+            drawLine(to, nextRotorCoord, createGradient(to, nextRotorCoord, 1), dp.pathWidth); /* 1 */
+        } else if (plugToRotor == path?.holesToPrev[path.holesToPrev.length - 1]) {
+            drawLine(to, nextRotorCoord, createGradient(nextRotorCoord, to, 4 * enigma.rotors.length + 3), dp.pathWidth); /* 4 * |rotors| + 3 */
+        } else {
+            drawLine(to, nextRotorCoord, 'lightgray', 1);
+        }
     });
     /* draw rotors */
     enigma.rotors.forEach((rotor, i) => {
@@ -150,45 +170,34 @@ function drawEnigma(canvas: HTMLCanvasElement, enigma: AbstractEnigma, pathChar:
             const holeFrom = dp.getAbsoluteHoleCoord(j, dp.getAbsoluteRotorCenterCoords(i), 'out');
             const holeTo = dp.getAbsoluteHoleCoord(rotor.passInward(j), dp.getAbsoluteRotorCenterCoords(i), 'in');
             /* draw hole */
-            context.beginPath();
-            context.arc(holeFrom.x, holeFrom.y, dp.holeRadius, 0, 2 * Math.PI);
             if (rotor.isTurnOver(j)) {
-                context.fillStyle = 'lightgray';
-                context.fill();
+                drawCircle(holeFrom, dp.holeRadius, 'lightgray', 'fill');
             } else {
-                context.strokeStyle = 'black';
-                context.stroke();
+                drawCircle(holeFrom, dp.holeRadius, 'black', 'stroke');
             }
             /* draw small hole */
-            context.beginPath();
-            context.arc(holeTo.x, holeTo.y, dp.smallHoleRadius, 0, 2 * Math.PI);
-            context.strokeStyle = 'black';
-            context.stroke();
+            drawCircle(holeTo, dp.smallHoleRadius, 'black', 'stroke');
             /* draw connecting line */
-            context.beginPath();
-            context.moveTo(holeFrom.x, holeFrom.y);
-            context.lineTo(holeTo.x, holeTo.y);
-            [context.strokeStyle, context.lineWidth] =
-                rotor.passInward(j) == path?.holesToNext[i] ? [createGradient(holeFrom, holeTo, 2 * i + 2), dp.pathWidth] /* 2, 4, ... , 2 * |rotors| */
-                : j == path?.holesToPrev[enigma.rotors.length - 1 - i] ? [createGradient(holeTo, holeFrom, 4 * enigma.rotors.length - 2 * i + 2), dp.pathWidth] /* 4 * |rotors| + 2, 4 * |rotors|, ... , 2 * |rotors| + 4 */
-                : ['black', 1];
-            context.stroke();
-            context.lineWidth = 1;
+            if (rotor.passInward(j) == path?.holesToNext[i]) {
+                drawLine(holeFrom, holeTo, createGradient(holeFrom, holeTo, 2 * i + 2), dp.pathWidth); /* 2, 4, ... , 2 * |rotors| */
+            } else if (j == path?.holesToPrev[enigma.rotors.length - 1 - i]) {
+                drawLine(holeFrom, holeTo, createGradient(holeTo, holeFrom, 4 * enigma.rotors.length - 2 * i + 2), dp.pathWidth); /* 4 * |rotors| + 2, 4 * |rotors|, ... , 2 * |rotors| + 4 */
+            } else {
+                drawLine(holeFrom, holeTo, 'black', 1);
+            }
             /* to next rotor */
-            context.beginPath();
-            context.moveTo(holeTo.x, holeTo.y);
             const nextHoleCoord = dp.getAbsoluteHoleCoord(
                 rotor.passInward(j),
                 i == enigma.rotors.length - 1 ? dp.absoluteReflectorCenterCoord : dp.getAbsoluteRotorCenterCoords(i + 1),
                 'out'
             );
-            context.lineTo(nextHoleCoord.x, nextHoleCoord.y);
-            [context.strokeStyle, context.lineWidth] =
-                rotor.passInward(j) == path?.holesToNext[i] ? [createGradient(holeTo, nextHoleCoord, 2 * i + 3), dp.pathWidth] /* 3, 5, ... , |rotors| * 2 + 1 */
-                : j == path?.holesToPrev[enigma.rotors.length - 1 - i] ? [createGradient(nextHoleCoord, holeTo, 4 * enigma.rotors.length - 2 * i + 1), dp.pathWidth] /* 4 * |rotors| + 1, 4 * |rotors| - 1, ... , 2 * |rotors| + 3 */
-                : ['lightgray', 1];
-            context.stroke();
-            context.lineWidth = 1;
+            if (rotor.passInward(j) == path?.holesToNext[i]) {
+                drawLine(holeTo, nextHoleCoord, createGradient(holeTo, nextHoleCoord, 2 * i + 3), dp.pathWidth); /* 3, 5, ... , |rotors| * 2 + 1 */
+            } else if (j == path?.holesToPrev[enigma.rotors.length - 1 - i]) {
+                drawLine(holeTo, nextHoleCoord, createGradient(nextHoleCoord, holeTo, 4 * enigma.rotors.length - 2 * i + 1), dp.pathWidth); /* 4 * |rotors| + 1, 4 * |rotors| - 1, ... , 2 * |rotors| + 3 */
+            } else {
+                drawLine(holeTo, nextHoleCoord, 'lightgray', 1);
+            }
         }
     });
     /* draw reflector */
@@ -197,23 +206,18 @@ function drawEnigma(canvas: HTMLCanvasElement, enigma: AbstractEnigma, pathChar:
         const holeFrom = dp.getAbsoluteHoleCoord(i, dp.absoluteReflectorCenterCoord, 'out');
         const holeTo = dp.getAbsoluteHoleCoord(enigma.reflector.pass(i), dp.absoluteReflectorCenterCoord, 'out');
         /* draw hole */
-        context.beginPath();
-        context.arc(holeFrom.x, holeFrom.y, dp.holeRadius, 0, 2 * Math.PI);
-        context.strokeStyle = 'black';
-        context.stroke();
+        drawCircle(holeFrom, dp.holeRadius, 'black', 'stroke');
         /* draw connecting line */
         if (drawns.includes(i)) {
             continue;
         }
-        context.beginPath();
-        context.moveTo(holeFrom.x, holeFrom.y);
-        context.lineTo(holeTo.x, holeTo.y);
-        [context.strokeStyle, context.lineWidth] =
-            enigma.reflector.pass(i) == path?.reflectorHoleToPrev ? [createGradient(holeFrom, holeTo, 2 * enigma.rotors.length + 2), dp.pathWidth] /* 2 * |rotors| + 2 */
-            : i == path?.reflectorHoleToPrev ? [createGradient(holeTo, holeFrom, 2 * enigma.rotors.length + 2), dp.pathWidth] /* 2 * |rotors| + 2 */
-            : ['black', 1];
-        context.stroke();
-        context.lineWidth = 1;
+        if (enigma.reflector.pass(i) == path?.reflectorHoleToPrev) {
+            drawLine(holeFrom, holeTo, createGradient(holeFrom, holeTo, 2 * enigma.rotors.length + 2), dp.pathWidth); /* 2 * |rotors| + 2 */
+        } else if (i == path?.reflectorHoleToPrev) {
+            drawLine(holeTo, holeFrom, createGradient(holeTo, holeFrom, 2 * enigma.rotors.length + 2), dp.pathWidth); /* 2 * |rotors| + 2 */
+        } else {
+            drawLine(holeFrom, holeTo, 'black', 1);
+        }
         drawns.push(enigma.reflector.pass(i));
     }
 }
