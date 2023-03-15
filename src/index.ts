@@ -15,15 +15,7 @@ const enigma = new EnigmaI(
 
 const canvas = document.getElementById('myCanvas') as HTMLCanvasElement;
 
-window.onload = window.onresize = () => {
-    /* 幅が最大で画面の 95%、かつ高さが最大で画面の 2/3 を満たしつつなるべく大きくする */
-    const maxWidth = document.documentElement.clientWidth * .95;
-    const maxHeight = document.documentElement.clientHeight * (2 / 3);
-    [canvas.width, canvas.height] =
-        maxWidth / DrawingProperty.canvasWidthRatioToHeight <= maxHeight
-            ? [maxWidth, maxWidth / DrawingProperty.canvasWidthRatioToHeight]
-            : [maxHeight * DrawingProperty.canvasWidthRatioToHeight, maxHeight];
-};
+window.onload = window.onresize = () => { resizeCanvas(canvas); };
 
 setInterval(() => {
     const context = canvas.getContext('2d');
@@ -102,6 +94,16 @@ class DrawingProperty {
             y: (inOut == 'in' ? this._rotorInternalRadius : this._rotorRadius) * Math.sin(2 * Math.PI / enigma.alphabet.size * n - Math.PI / 2) + c.y
         }
     }
+}
+
+function resizeCanvas(canvas: HTMLCanvasElement) {
+    /* 幅が最大で画面の 95%、かつ高さが最大で画面の 2/3 を満たしつつなるべく大きくする */
+    const maxWidth = document.documentElement.clientWidth * .95;
+    const maxHeight = document.documentElement.clientHeight * (2 / 3);
+    [canvas.width, canvas.height] =
+        maxWidth / DrawingProperty.canvasWidthRatioToHeight <= maxHeight
+            ? [maxWidth, maxWidth / DrawingProperty.canvasWidthRatioToHeight]
+            : [maxHeight * DrawingProperty.canvasWidthRatioToHeight, maxHeight];
 }
 
 function drawEnigma(context: CanvasRenderingContext2D, enigma: AbstractEnigma, pathChar: string | null = null) {
