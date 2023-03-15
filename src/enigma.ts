@@ -406,13 +406,13 @@ abstract class AbstractEnigma {
         if (![...rotors.map(rotor => rotor.alphabet), reflector.alphabet].every(alphabet => alphabet.eqauls(plugBoard.alphabet))) {
             throw Error('alphabets of plugBoard, rotors, and reflector must be much.');
         }
+        if (rotors.length != ringSetting.length || rotors.length != rotationSetting.length) {
+            throw Error('count of rotors and lengths of ringSetting and rotationSetting must be much.');
+        }
         this._alphabet = plugBoard.alphabet;
         this._plugBoard = plugBoard;
         this._rotors = rotors;
         this._reflector = reflector;
-        if (rotors.length != ringSetting.length || rotors.length != rotationSetting.length) {
-            throw Error('count of rotors and lengths of ringSetting and rotationSetting must be much.');
-        }
         rotors.forEach((rotor, i) => rotor.ring = ringSetting.charAt(i));
         rotors.forEach((rotor, i) => rotor.rotation = rotationSetting.charAt(i));
     }
