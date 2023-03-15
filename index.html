@@ -1,108 +1,20 @@
 <!DOCTYPE html>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <html>
-  <head>
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
-  </head>
   <body>
-    <h1>ENIGMA I SIMULATOR</h1>
+    <h1>reika727 のほめぱげ</h1>
     <p>
-      ドイツ軍の暗号機<b>エニグマ I</b>のシミュレータです。
+      もともとオシャンなサイトを作る予定だったけど、HTML が難しすぎて挫折しそう。
     </p>
-    <div id="enigmaI" style="margin: 0 auto;">
-      <div>
-        <canvas id="enigmaCanvas"></canvas>
-      </div>
-      <div class="autoCentering">
-        <textarea id="enigmaTextArea", placeholder="大文字アルファベット「のみ」を暗号化します（それ以外の文字は暗号化されず出力されます）"></textarea>
-      </div>
-      <div class="autoCentering">
-        <textarea readonly id="enigmaResult", placeholder="ここに暗号化の結果が表示されます"></textarea>
-      </div>
-      <div style="border: 1px solid; padding: 1%">
-        <p style="text-align: center;">
-          &#9881;&#65039; 細かい設定 &#9881;&#65039;
-        </p>
-        <div class="autoCentering">
-          <textarea id="plugBoardTextArea", placeholder="プラグボードで交換する文字を「AB DX FK ...」という感じで打ってください"></textarea>
-        </div>
-        <div class="autoCentering">
-          <select id="rotor3-select">
-            <option hidden>左端のロータ</option>
-            <option value="1">ROTOR I</option>
-            <option value="2">ROTOR II</option>
-            <option value="3">ROTOR III</option>
-            <option value="4">ROTOR IV</option>
-            <option value="5">ROTOR V</option>
-          </select>
-          <select id="rotor2-select">
-            <option hidden>真ん中のロータ</option>
-            <option value="1">ROTOR I</option>
-            <option value="2">ROTOR II</option>
-            <option value="3">ROTOR III</option>
-            <option value="4">ROTOR IV</option>
-            <option value="5">ROTOR V</option>
-          </select>
-          <select id="rotor1-select">
-            <option hidden>右端のロータ</option>
-            <option value="1">ROTOR I</option>
-            <option value="2">ROTOR II</option>
-            <option value="3">ROTOR III</option>
-            <option value="4">ROTOR IV</option>
-            <option value="5">ROTOR V</option>
-          </select>
-        </div>
-        <div class="autoCentering">
-          <input id="ringConfig" minlength="3", maxlength="3", placeholder="リング設定">
-          <input id="rotationConfig" minlength="3", maxlength="3", placeholder="回転設定">
-        </div>
-      </div>
-    </div>
-    <h1>おまけ：日本語対応エニグマ</h1>
+    <h2>コンテンツ</h2>
     <p>
-      細かい設定は<s>作るのがめんどくさかったので</s>ないです。
+      当サイト現在唯一のコンテンツ：<a href="./enigmaISimulator/">エニグマシミュレータ</a>
     </p>
-    <div id="irohaEnigma" style="margin: 0 auto;">
-      <div class="autoCentering">
-        <canvas id="irohaEnigmaCanvas"></canvas>
-      </div>
-      <div class="autoCentering">
-        <textarea id="irohaEnigmaTextArea", placeholder="ひらがな４８種「のみ」を暗号化します（それ以外の文字は暗号化されず出力されます）"></textarea>
-      </div>
-      <div class="autoCentering">
-        <textarea readonly id="irohaEnigmaResult", placeholder="ここに暗号化の結果が表示されます"></textarea>
-      </div>
-      <h2>裏話</h2>
-      <p>
-        この日本語対応エニグマはこんな感じの定義になっています。この部分だけ見せられても<b>いやなんのこっちゃ</b>って感じだと思いますが、まあ要するにこの日本語版エニグマの設定にもいろいろ元ネタがあるという話です。
-      </p>
-      <pre>
-        <code>new class extends AbstractEnigma {} (
-    new PlugBoard(
-        IrohaEnigmaHandler.iroha,
-        /* あめつちの詞、二回目の「え」は「ん」で置き換えた */
-        ['あ', 'め'], ['つ', 'ち'], ['ほ', 'し'], ['そ', 'ら'], ['や', 'ま'], ['か', 'は'], ['み', 'ね'], ['た', 'に'],
-        ['く', 'も'], ['き', 'り'], ['む', 'ろ'], ['こ', 'け'], ['ひ', 'と'], ['い', 'ぬ'], ['う', 'へ'], ['す', 'ゑ'],
-        ['ゆ', 'わ'], ['さ', 'る'], ['お', 'ふ'], ['せ', 'よ'], ['え', 'の'], ['ん', 'を'], ['な', 'れ'], ['ゐ', 'て']
-    ),
-    [
-        /* 大為爾の歌、末尾に「ん」を追加した */
-        new Rotor(IrohaEnigmaHandler.iroha, 'たゐにいてなつむわれをそきみめすとあさりおひゆくやましろのうちゑへるこらもはほせよえふねかけぬん', 'い'),
-        /* 鳥啼歌 */
-        new Rotor(IrohaEnigmaHandler.iroha, 'とりなくこゑすゆめさませみよあけわたるひんかしをそらいろはえておきつへにほふねむれゐぬもやのうち', 'ろ'),
-        /* マジック・ザ・ギャザリング "Now I Know My ABC's" の日本語版フレーバーテキスト、「ゐ」「ゑ」を追加した */
-        new Rotor(IrohaEnigmaHandler.iroha, 'れきせんへるすはやいくろこおになまけとわあふたちをひらりかみしものぬえむねほめてよつゆさそうゐゑ', 'は')
-    ],
-    /* 自動生成したものなので特に元ネタはない */
-    new Reflector(IrohaEnigmaHandler.iroha, 'わせもねよとへるめえちないまほきおのんにをしゆてくそれゐゑかさすみぬうひけたむりこらやあはろふつ'),
-    'やまと',
-    'ことは'
-);</code>
-      </pre>
-    </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
-    <script src="dist/index.js"></script>
+    <h2>リンク</h2>
+    <ul>
+      <li>Qiita: <a href="https://qiita.com/reika727">reika727</a></li>
+      <li>github: <a href="https://github.com/reika727">reika727</a></li>
+      <li>ﾄｩｳｨｯﾋﾋｰ：<a href="https://twitter.com/reik727">@REIK727</a></li>
+    </ul>
   </body>
 </html>
