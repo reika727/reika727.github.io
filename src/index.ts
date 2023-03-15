@@ -94,7 +94,7 @@ class DrawingProperty {
         this._alphabetSize = enigma.alphabet.size;
         const holeRadiusRatioToRotorRadius = Math.sin(2 * Math.PI / this._alphabetSize / 2) * 0.9; /* HACK: 0.9 という倍率にも深い意味はない */
         const boundingSquareSideRatioToRotorRadius = 2 * (1 + holeRadiusRatioToRotorRadius);
-        const paddingRatioToRotorRadius = holeRadiusRatioToRotorRadius; /* HACK: とりあえず穴の半径と一緒にしておく */
+        const paddingRatioToRotorRadius = holeRadiusRatioToRotorRadius * 2; /* HACK: とりあえず穴の直径と一緒にしておく */
         const canvasSizeRatioToRotorRadius = {
             width: this._rotorsCount * boundingSquareSideRatioToRotorRadius + (this._rotorsCount + 1) * paddingRatioToRotorRadius,
             height: 2 * boundingSquareSideRatioToRotorRadius + 3 * paddingRatioToRotorRadius
@@ -187,7 +187,7 @@ function drawEnigma(context: CanvasRenderingContext2D, enigma: AbstractEnigma, p
     const path = pathChar ? enigma.getPath(pathChar) : null;
     /* draw plugboard */
     context.textAlign = 'center';
-    context.textBaseline = 'middle';
+    context.textBaseline = 'top';
     enigma.plugBoard.exchangeTable.forEach((plugToRotor, charIndex) => {
         const from = dp.getAbsolutePlugCoord(charIndex, 'in'), to = dp.getAbsolutePlugCoord(plugToRotor, 'out');
         /* draw characters */
