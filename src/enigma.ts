@@ -207,7 +207,7 @@ class Rotor {
     set ring(char: string) {
         const idx = this._alphabet.indexOf(char);
         if (idx === undefined) {
-            throw Error(`{char} is not in "alphabet"`);
+            throw Error(`${char} is not in "alphabet"`);
         }
         this._ringRotation = idx;
     }
@@ -220,7 +220,7 @@ class Rotor {
     set rotation(char: string) {
         const idx = this._alphabet.indexOf(char);
         if (idx === undefined) {
-            throw Error(`{char} is not in "alphabet".`);
+            throw Error(`${char} is not in "alphabet".`);
         }
         this._rotation = idx;
     }
