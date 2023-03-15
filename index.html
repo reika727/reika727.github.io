@@ -7,20 +7,30 @@
       text-align: right;
       width: 150px;
     }
-    canvas, input {
+    canvas, textarea {
       margin-left: auto;
       margin-right: auto;
       border: 1px solid;
       display: block;
     }
+    div {
+      margin-top: 1%;
+    }
   </style>
   <body>
-    <canvas id="enigmaCanvas"></canvas>
-    <br>
-    <canvas id="irohaEnigmaCanvas"></canvas>
+    <div>
+      <canvas id="enigmaCanvas"></canvas>
+    </div>
+    <div>
+      <textarea id="enigmaTextArea", placeholder="大文字アルファベット「のみ」を暗号化します（それ以外の文字は暗号化されず出力されます）"></textarea>
+    </div>
+    <div>
+      <textarea readonly id="enigmaResult", placeholder="ここに暗号化の結果が表示されます"></textarea>
+    </div>
     <!--
-    <br>
-    <input id="inputbox" style="text-transform:uppercase" onkeydown="return /[A-Za-z]/.test(event.key)" oninput="inputChange()">
+    <div>
+      <canvas id="irohaEnigmaCanvas"></canvas>
+    </div>
     <br>
     <label for="pet-select">右端のウィール</label>
     <select name="wheel1" id="wheel1-select">
