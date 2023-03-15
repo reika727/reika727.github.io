@@ -131,12 +131,8 @@ class PlugBoard {
      * @example A と C，K と O を交換する場合は ['A', 'C'], ['K', 'O'] を渡す。
      * @description ['A', 'A'] など同じ文字を交換するようにしてもエラー扱いにはならない。
      * @description 厳密には pairs に対し先頭から順にプラグを指しなおすという動作を行う。よって、例えば ['A', 'J'], ['J', 'Q'] が渡された場合には A が J に、J が Q に、Q が A に変換されることになる。
-     * @throws {Error} alphabet が空であってはならない。
      */
     constructor(alphabet: Alphabet, ...pairs: [string, string][]) {
-        if (alphabet.size === 0) {
-            throw Error('alphabet must not be empty.');
-        }
         this._alphabet = alphabet;
         this._exchangeTable = [...Array(this._alphabet.size).keys()];
         pairs.forEach(
