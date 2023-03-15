@@ -98,6 +98,15 @@ class Alphabet {
     eqauls(alphabet: Alphabet) {
         return this._characters.join('') === alphabet._characters.join('');
     }
+
+    /**
+     * アルファベット内に文字が含まれるか検査する
+     * @param char 検査する文字
+     * @returns 含まれるか否か
+     */
+    contains(char: string) {
+        return this._indices.get(char) !== undefined;
+    }
 }
 
 /**
