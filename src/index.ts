@@ -44,7 +44,60 @@ class EnigmaIHandler {
         drawEnigma(this._canvasContext, enigma, enigma.alphabet.contains(lastCharacter) ? lastCharacter : null);
     }
     resizeAll() {
-        resizeCanvas(this._canvas, 3, 26);
+        resizeCanvas(this._canvas, 3, Alphabet.capitalLatin.size);
+        this._textArea.style.width = this._canvas.style.width;
+        this._resultField.style.width = this._canvas.style.width;
+    }
+}
+
+class IrohaEnigmaHandler {
+    private static iroha = new Alphabet('いろはにほへとちりぬるをわかよたれそつねならむうゐのおくやまけふこえてあさきゆめみしゑひもせすん');
+    private _canvas: HTMLCanvasElement;
+    private _canvasContext: CanvasRenderingContext2D;
+    private _textArea: HTMLTextAreaElement;
+    private _resultField: HTMLTextAreaElement;
+    constructor() {
+        this._canvas = document.getElementById('irohaEnigmaCanvas') as HTMLCanvasElement;
+        const tmp = this._canvas.getContext('2d');
+        assert(tmp);
+        this._canvasContext = tmp;
+        this._textArea = document.getElementById('irohaEnigmaTextArea') as HTMLTextAreaElement;
+        this._resultField = document.getElementById('irohaEnigmaResult') as HTMLTextAreaElement;
+        this._textArea.addEventListener('input', () => this.redrawEnigmaWithInputText());
+    }
+    createEnigma() {
+        return new class extends AbstractEnigma {} (
+            new PlugBoard(
+                IrohaEnigmaHandler.iroha,
+                /* あめつちの詞、二回目の「え」は「ん」で置き換えた */
+                ['あ', 'め'], ['つ', 'ち'], ['ほ', 'し'], ['そ', 'ら'], ['や', 'ま'], ['か', 'は'], ['み', 'ね'], ['た', 'に'],
+                ['く', 'も'], ['き', 'り'], ['む', 'ろ'], ['こ', 'け'], ['ひ', 'と'], ['い', 'ぬ'], ['う', 'へ'], ['す', 'ゑ'],
+                ['ゆ', 'わ'], ['さ', 'る'], ['お', 'ふ'], ['せ', 'よ'], ['え', 'の'], ['ん', 'を'], ['な', 'れ'], ['ゐ', 'て']
+            ),
+            [
+                /* 大為爾の歌、末尾に「ん」を追加した */
+                new Rotor(IrohaEnigmaHandler.iroha, 'たゐにいてなつむわれをそきみめすとあさりおひゆくやましろのうちゑへるこらもはほせよえふねかけぬん', 'い'),
+                /* 鳥啼歌 */
+                new Rotor(IrohaEnigmaHandler.iroha, 'とりなくこゑすゆめさませみよあけわたるひんかしをそらいろはえておきつへにほふねむれゐぬもやのうち', 'ろ'),
+                /* マジック・ザ・ギャザリング "Now I Know My ABC's" の日本語版フレーバーテキスト、「ゐ」「ゑ」を追加した */
+                new Rotor(IrohaEnigmaHandler.iroha, 'れきせんへるすはやいくろこおになまけとわあふたちをひらりかみしものぬえむねほめてよつゆさそうゐゑ', 'は')
+            ],
+            /* 自動生成したものなので特に元ネタはない */
+            new Reflector(IrohaEnigmaHandler.iroha, 'わせもねよとへるめえちないまほきおのんにをしゆてくそれゐゑかさすみぬうひけたむりこらやあはろふつ'),
+            'やまと',
+            'ことは'
+        );
+    }
+    redrawEnigmaWithInputText() {
+        const input = this._textArea.value;
+        const lastCharacter = input[input.length - 1];
+        const enigma = this.createEnigma();
+        this._resultField.value = [...input].map(c => enigma.alphabet.contains(c) ? enigma.encrypt(c) : c).join('');
+        this._canvasContext.clearRect(0, 0, this._canvas.width, this._canvas.height);
+        drawEnigma(this._canvasContext, enigma, enigma.alphabet.contains(lastCharacter) ? lastCharacter : null);
+    }
+    resizeAll() {
+        resizeCanvas(this._canvas, 3, IrohaEnigmaHandler.iroha.size);
         this._textArea.style.width = this._canvas.style.width;
         this._resultField.style.width = this._canvas.style.width;
     }
@@ -52,45 +105,14 @@ class EnigmaIHandler {
 
 const eh1 = new EnigmaIHandler;
 
+const ieh = new IrohaEnigmaHandler;
+
 window.onload = window.onresize = () => {
     eh1.resizeAll();
     eh1.redrawEnigmaWithInputText();
+    ieh.resizeAll();
+    ieh.redrawEnigmaWithInputText();
 };
-
-// const iroha = new Alphabet('いろはにほへとちりぬるをわかよたれそつねならむうゐのおくやまけふこえてあさきゆめみしゑひもせすん');
-//
-// const irohaEnigma = new class extends AbstractEnigma {} (
-//     new PlugBoard(
-//         iroha,
-//         /* あめつちの詞、二回目の「え」は「ん」で置き換えた */
-//         ['あ', 'め'], ['つ', 'ち'], ['ほ', 'し'], ['そ', 'ら'], ['や', 'ま'], ['か', 'は'], ['み', 'ね'], ['た', 'に'],
-//         ['く', 'も'], ['き', 'り'], ['む', 'ろ'], ['こ', 'け'], ['ひ', 'と'], ['い', 'ぬ'], ['う', 'へ'], ['す', 'ゑ'],
-//         ['ゆ', 'わ'], ['さ', 'る'], ['お', 'ふ'], ['せ', 'よ'], ['え', 'の'], ['ん', 'を'], ['な', 'れ'], ['ゐ', 'て']
-//     ),
-//     [
-//         /* 大為爾の歌、末尾に「ん」を追加した */
-//         new Rotor(iroha, 'たゐにいてなつむわれをそきみめすとあさりおひゆくやましろのうちゑへるこらもはほせよえふねかけぬん', 'い'),
-//         /* 鳥啼歌 */
-//         new Rotor(iroha, 'とりなくこゑすゆめさませみよあけわたるひんかしをそらいろはえておきつへにほふねむれゐぬもやのうち', 'ろ'),
-//         /* マジック・ザ・ギャザリング "Now I Know My ABC's" の日本語版フレーバーテキスト、「ゐ」「ゑ」を追加した */
-//         new Rotor(iroha, 'れきせんへるすはやいくろこおになまけとわあふたちをひらりかみしものぬえむねほめてよつゆさそうゐゑ', 'は')
-//     ],
-//     /* 自動生成したものなので特に元ネタはない */
-//     new Reflector(iroha, 'わせもねよとへるめえちないまほきおのんにをしゆてくそれゐゑかさすみぬうひけたむりこらやあはろふつ'),
-//     'やまと',
-//     'ことは'
-// );
-//
-// const irohaEnigmaCanvas = document.getElementById('irohaEnigmaCanvas') as HTMLCanvasElement;
-//
-// setInterval(() => {
-//     const irohaEnigmaContext = irohaEnigmaCanvas.getContext('2d');
-//     assert(irohaEnigmaContext);
-//     irohaEnigmaContext.clearRect(0, 0, irohaEnigmaCanvas.width, irohaEnigmaCanvas.height);
-//     const char2 = irohaEnigma.alphabet.at(Math.floor(Math.random() * irohaEnigma.alphabet.size));
-//     irohaEnigma.encrypt(char2);
-//     drawEnigma(irohaEnigmaContext, irohaEnigma, char2);
-// }, 300);
 
 class DrawingProperty {
     private _rotorsCount: number;
