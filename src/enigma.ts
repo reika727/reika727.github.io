@@ -386,33 +386,33 @@ abstract class AbstractEnigma {
     /**
      * @summary 文字を入力されたことによる信号が通過することになる穴の一覧を返却する。
      * @param char 入力する文字
-     * @returns 信号が通過する穴の番号の一覧 (exchangedIn: プラグボードから出た信号が入っていく穴 / rotorsIn: 各ロータからリフレクタ側に向かって出ていった信号が入っていく穴 / reflected: リフレクタから出た信号が入っていく穴 / rotorsOut: 各ロータからプラグボード側に向かって出ていった信号が入っていく穴 / exchangedOut: プラグボードのどこから出てくるか)
+     * @returns 信号が通過する穴の番号の一覧 (plugToRotor: 入力信号がプラグボードのどの穴から出ていくか / holesToNext: プラグボード側からの信号が各ロータのどの穴から出ていくか / reflectorHoleToPrev: プラグボード側からの信号がリフレクタのどの穴から出ていくか / holesToPrev: リフレクタ側からの信号が各ロータのどの穴から出ていくか / plugToOut: 最終的にプラグボードのどの穴から出ていくか)
      */
     getPath(char: string) {
-        const exchangedIn = this._plugBoard.exchangeTable[this.alphabet.indexOf(char)];
-        const rotorsIn = Array<number>();
+        const plugToRotor = this._plugBoard.exchangeTable[this.alphabet.indexOf(char)];
+        const holesToNext = Array<number>();
         for (const rotor of this.rotors) {
-            rotorsIn.push(
+            holesToNext.push(
                 rotor.passInward(
-                    rotorsIn.length ? rotorsIn[rotorsIn.length - 1] : exchangedIn
+                    holesToNext.length ? holesToNext[holesToNext.length - 1] : plugToRotor
                 )
             );
         }
-        const reflected = this.reflector.pass(rotorsIn[rotorsIn.length - 1]);
-        const rotorsOut = Array<number>();
+        const reflectorHoleToPrev = this.reflector.pass(holesToNext[holesToNext.length - 1]);
+        const holesToPrev = Array<number>();
         for (let i = this._rotors.length - 1; i >= 0; --i) {
-            rotorsOut.push(
+            holesToPrev.push(
                 this._rotors[i].passOutward(
-                    rotorsOut.length ? rotorsOut[rotorsOut.length - 1] : reflected
+                    holesToPrev.length ? holesToPrev[holesToPrev.length - 1] : reflectorHoleToPrev
                 )
             );
         }
         return {
-            exchangedIn: exchangedIn,
-            rotorsIn: rotorsIn,
-            reflected: reflected,
-            rotorsOut: rotorsOut,
-            exchangedOut: this._plugBoard.exchangeTable[rotorsOut[rotorsOut.length - 1]]
+            plugToRotor: plugToRotor,
+            holesToNext: holesToNext,
+            reflectorHoleToPrev: reflectorHoleToPrev,
+            holesToPrev: holesToPrev,
+            plugToOut: this._plugBoard.exchangeTable[holesToPrev[holesToPrev.length - 1]]
         };
     }
 
@@ -428,7 +428,7 @@ abstract class AbstractEnigma {
                     break;
                 }
             }
-            return this.plugBoard.alphabet.at(this.getPath(char).exchangedOut);
+            return this.plugBoard.alphabet.at(this.getPath(char).plugToOut);
         }).join('');
     }
 
