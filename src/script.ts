@@ -26,9 +26,12 @@ window.onload = window.onresize = () => {
 };
 
 setInterval(() => {
+    const context = canvas.getContext('2d');
+    assert(context);
+    context.clearRect(0, 0, canvas.width, canvas.height);
     const char = enigma.alphabet.at(Math.floor(Math.random() * enigma.alphabet.size));
     enigma.encrypt(char);
-    drawEnigma(canvas, enigma, char);
+    drawEnigma(context, enigma, char);
 }, 300);
 
 class DrawingProperty {
@@ -101,12 +104,7 @@ class DrawingProperty {
     }
 }
 
-function drawEnigma(canvas: HTMLCanvasElement, enigma: AbstractEnigma, pathChar: string | null = null) {
-    const context = canvas.getContext('2d');
-    assert(context);
-    const path = pathChar ? enigma.getPath(pathChar) : null;
-    const dp = new DrawingProperty(canvas);
-    context.clearRect(0, 0, canvas.width, canvas.height);
+function drawEnigma(context: CanvasRenderingContext2D, enigma: AbstractEnigma, pathChar: string | null = null) {
     const drawLine = (from: {x: number, y: number}, to: {x: number, y: number}, strokeStyle: typeof context.strokeStyle, lineWidth: number) => {
         context.save();
         context.beginPath();
@@ -137,6 +135,8 @@ function drawEnigma(canvas: HTMLCanvasElement, enigma: AbstractEnigma, pathChar:
         lineargradient.addColorStop(1, `hsl(${(lineNumber + 1) / linesCount}turn, 100%, 50%)`);
         return lineargradient;
     };
+    const dp = new DrawingProperty(context.canvas);
+    const path = pathChar ? enigma.getPath(pathChar) : null;
     /* draw plugboard */
     context.textAlign = 'center';
     context.textBaseline = 'middle';
