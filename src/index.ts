@@ -74,6 +74,9 @@ class DrawingProperty {
     get canvasWidthRatioToHeight() {
         return this._canvasSize.width / this._canvasSize.height;
     }
+    get plugBoardSize() {
+        return this._plugBoardSize;
+    }
     get holeRadius() {
         return this._holeRadius;
     }
@@ -186,6 +189,7 @@ function drawEnigma(context: CanvasRenderingContext2D, enigma: AbstractEnigma, p
     const dp = new DrawingProperty(context.canvas, enigma);
     const path = pathChar ? enigma.getPath(pathChar) : null;
     /* draw plugboard */
+    context.font = `bold ${dp.plugBoardSize.width / enigma.alphabet.size}px 'メイリオ'`;
     context.textAlign = 'center';
     context.textBaseline = 'top';
     enigma.plugBoard.exchangeTable.forEach((plugToRotor, charIndex) => {
