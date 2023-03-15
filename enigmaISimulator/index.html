@@ -28,7 +28,7 @@
           <textarea id="plugBoardTextArea", placeholder="プラグボードで交換する文字を「AB DX FK ...」という感じで打ってください"></textarea>
         </div>
         <div class="autoCentering">
-          <select id="rotor3-select">
+          <select id="rotor3-select" style="flex: 1;">
             <option hidden>左端のロータ</option>
             <option value="1">ROTOR I</option>
             <option value="2">ROTOR II</option>
@@ -36,7 +36,7 @@
             <option value="4">ROTOR IV</option>
             <option value="5">ROTOR V</option>
           </select>
-          <select id="rotor2-select">
+          <select id="rotor2-select" style="flex: 1;">
             <option hidden>真ん中のロータ</option>
             <option value="1">ROTOR I</option>
             <option value="2">ROTOR II</option>
@@ -44,7 +44,7 @@
             <option value="4">ROTOR IV</option>
             <option value="5">ROTOR V</option>
           </select>
-          <select id="rotor1-select">
+          <select id="rotor1-select" style="flex: 1;">
             <option hidden>右端のロータ</option>
             <option value="1">ROTOR I</option>
             <option value="2">ROTOR II</option>
@@ -54,8 +54,8 @@
           </select>
         </div>
         <div class="autoCentering">
-          <input id="ringConfig" minlength="3", maxlength="3", placeholder="リング設定">
-          <input id="rotationConfig" minlength="3", maxlength="3", placeholder="回転設定">
+          <input id="ringConfig" minlength="3", maxlength="3", placeholder="リング設定" size="1" style="flex: 1">
+          <input id="rotationConfig" minlength="3", maxlength="3", placeholder="回転設定" size="1" style="flex: 1">
         </div>
       </div>
     </div>
