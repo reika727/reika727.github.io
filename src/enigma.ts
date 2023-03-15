@@ -79,10 +79,15 @@ class Alphabet {
     /**
      * 文字から位置への変換
      * @param char 文字
-     * @returns char の位置。char がアルファベット内に含まれない場合は undefined
+     * @returns char の位置
+     * @throws {Error} char はアルファベット内に含まれていなければならない。
      */
     indexOf(char: string) {
-        return this._indices.get(char);
+        const index = this._indices.get(char);
+        if (index === undefined) {
+            throw Error(`${char} is not in alphabet.`);
+        }
+        return index;
     }
 
     /**
@@ -127,7 +132,6 @@ class PlugBoard {
      * @description ['A', 'A'] など同じ文字を交換するようにしてもエラー扱いにはならない。
      * @description 厳密には pairs に対し先頭から順にプラグを指しなおすという動作を行う。よって、例えば ['A', 'J'], ['J', 'Q'] が渡された場合には A が J に、J が Q に、Q が A に変換されることになる。
      * @throws {Error} alphabet が空であってはならない。
-     * @throws {Error} pairs に alphabet にない文字が含まれていてはならない。
      */
     constructor(alphabet: Alphabet, ...pairs: [string, string][]) {
         if (alphabet.size === 0) {
@@ -138,9 +142,6 @@ class PlugBoard {
         pairs.forEach(
             ([c1, c2]) => {
                 const idx1 = this._alphabet.indexOf(c1), idx2 = this._alphabet.indexOf(c2);
-                if (idx1 === undefined || idx2 === undefined) {
-                    throw Error('unknown character in argument "pairs".');
-                }
                 [this._exchangeTable[idx1], this._exchangeTable[idx2]] = [this._exchangeTable[idx2], this._exchangeTable[idx1]];
             }
         );
@@ -202,27 +203,17 @@ class Rotor {
     /**
      * リングの回転を指定する setter。i 番目の文字を渡すとリングを初期設定から i 文字分回した状態にする。
      * @param char リング設定を表す文字
-     * @throws {Error} char はアルファベット内に含まれていなければならない。
      */
     set ring(char: string) {
-        const idx = this._alphabet.indexOf(char);
-        if (idx === undefined) {
-            throw Error(`${char} is not in "alphabet"`);
-        }
-        this._ringRotation = idx;
+        this._ringRotation = this._alphabet.indexOf(char);
     }
 
     /**
      * ロータ自体の回転を指定する setter。i 番目の文字を渡すとロータを初期設定から i 文字分回した状態にする。
      * @param char ロータ設定を表す文字
-     * @throws {Error} char はアルファベット内に含まれていなければならない。
      */
     set rotation(char: string) {
-        const idx = this._alphabet.indexOf(char);
-        if (idx === undefined) {
-            throw Error(`${char} is not in "alphabet".`);
-        }
-        this._rotation = idx;
+        this._rotation = this._alphabet.indexOf(char);
     }
 
     /**
@@ -230,8 +221,6 @@ class Rotor {
      * @param initialOffsetTableStr alphabet 内の全ての文字を一つずつ含む文字列。initialOffsetTableStr[i] = (j 番目の文字) であることは、初期設定においてプラグボード側から i 番目の穴に入った信号が j 番目の穴から出てくることを意味する。
      * @param turnOverChars alphabet 内の任意個の文字。n 番目の文字は初期設定において n 番目の穴が「隣のロータに回転を誘発する穴」であることを意味する。
      * @throws {Error} alphabet の大きさと initialOffsetTableStr の長さは一致していなければならない。
-     * @throws {Error} initialOffsetTableStr は alphabet が含まない文字を含んでいてはならない。
-     * @throws {Error} turnOverChars は alphabet が含まない文字を含んでいてはならない。
      * @description initialOffsetTableStr が以上の例外条件に抵触せず、なおかつ重複する文字を含んでしまっている場合は未定義。
      */
     constructor(alphabet: Alphabet, initialOffsetTableStr: string, ...turnOverChars: string[]) {
@@ -239,22 +228,10 @@ class Rotor {
             throw Error('|alphabet| must be equal to |initialOffsetTableStr|');
         }
         this._alphabet = alphabet;
-        this._initialOffsetTable = [...initialOffsetTableStr].map((initialOffsetChar, i) => {
-            const idx = this._alphabet.indexOf(initialOffsetChar);
-            if (idx === undefined) {
-                throw Error(`${initialOffsetChar} is not in "alphabet".`);
-            }
-            return idx - i;
-        });
+        this._initialOffsetTable = [...initialOffsetTableStr].map((initialOffsetChar, i) => this._alphabet.indexOf(initialOffsetChar) - i);
         this._initialReverseOffsetTable = new Array(this._initialOffsetTable.length);
         this._initialOffsetTable.forEach((initialOffset, i) => this._initialReverseOffsetTable[this.mod.add(i, initialOffset)] = -initialOffset);
-        this._initialTurnOvers = turnOverChars.map(turnOverChar => {
-            const idx = this._alphabet.indexOf(turnOverChar);
-            if (idx === undefined) {
-                throw Error(`${turnOverChar} is not in "alphabet".`);
-            }
-            return idx;
-        });
+        this._initialTurnOvers = turnOverChars.map(turnOverChar => this._alphabet.indexOf(turnOverChar));
     }
 
     /**
@@ -322,7 +299,6 @@ class Reflector {
     /**
      * @param offsetTableStr alphabet 内の全ての文字を一つずつ含む文字列。offsetTableStr[i] = (j 番目の文字) であることは、i 番目の穴に入った信号が j 番目の穴から出てくることを意味する。
      * @throws {Error} alphabet の大きさと offsetTableStr の長さは一致していなければならない。
-     * @throws {Error} offsetTableStr は alphabet が含まない文字を含んでいてはならない。
      * @description offsetTableStr が以上の例外条件に抵触せず、なおかつ重複する文字を含んでしまっている場合は未定義。
      */
     constructor(alphabet: Alphabet, offsetTableStr: string) {
@@ -330,13 +306,7 @@ class Reflector {
             throw Error('|alphabet| must be equal to |offsetTableStr|');
         }
         this._alphabet = alphabet;
-        this._offsetTable = [...offsetTableStr].map((offsetChar, i) => {
-            const idx = this._alphabet.indexOf(offsetChar);
-            if (idx === undefined) {
-                throw Error(`${offsetChar} is not in "alphabet".`);
-            }
-            return idx - i;
-        });
+        this._offsetTable = [...offsetTableStr].map((offsetChar, i) => this._alphabet.indexOf(offsetChar) - i);
     }
 
     /**
@@ -421,14 +391,9 @@ abstract class AbstractEnigma {
      * @summary 文字を入力されたことによる信号が通過することになる穴の一覧を返却する。
      * @param char 入力する文字
      * @returns 信号が通過する穴の番号の一覧 (exchangedIn: プラグボードから出た信号が入っていく穴 / rotorsIn: 各ロータからリフレクタ側に向かって出ていった信号が入っていく穴 / reflected: リフレクタから出た信号が入っていく穴 / rotorsOut: 各ロータからプラグボード側に向かって出ていった信号が入っていく穴 / exchangedOut: プラグボードのどこから出てくるか)
-     * @throws {Error} char はアルファベット内に含まれていなければならない。
      */
     getPath(char: string) {
-        const idx = this.alphabet.indexOf(char);
-        if (idx === undefined) {
-            throw Error(`${char} is not in the alphabet.`);
-        }
-        const exchangedIn = this._plugBoard.exchangeTable[idx];
+        const exchangedIn = this._plugBoard.exchangeTable[this.alphabet.indexOf(char)];
         const rotorsIn = Array<number>();
         for (const rotor of this.rotors) {
             rotorsIn.push(
@@ -459,13 +424,9 @@ abstract class AbstractEnigma {
      * 文字列を暗号化する
      * @param str 暗号化する文字列
      * @returns 暗号化された文字列
-     * @throws str 内にアルファベット内に含まれていない文字が含まれていてはいけない。
      */
     encrypt(str: string) {
         return [...str].map(char => {
-            if (this.alphabet.indexOf(char) === undefined) {
-                throw Error(`${char} in str is not in the alphabet.`);
-            }
             for (const rotor of this._rotors) {
                 if (!rotor.rotate()) {
                     break;
