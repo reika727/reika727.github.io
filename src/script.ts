@@ -107,9 +107,9 @@ function drawEnigma(canvas: HTMLCanvasElement, enigma: AbstractEnigma, pathChar:
     const path = pathChar ? enigma.getPath(pathChar) : null;
     const dp = new DrawingProperty(canvas);
     context.clearRect(0, 0, canvas.width, canvas.height);
-    const createGradient = (c0: {x: number, y: number}, c1: {x: number, y: number}, lineNumber: number) => {
+    const createGradient = (from: {x: number, y: number}, to: {x: number, y: number}, lineNumber: number) => {
         const linesCount = 4 * enigma.rotors.length + 5;
-        const lineargradient = context.createLinearGradient(c0.x, c0.y, c1.x, c1.y);
+        const lineargradient = context.createLinearGradient(from.x, from.y, to.x, to.y);
         lineargradient.addColorStop(0, `hsl(${lineNumber / linesCount}turn, 100%, 50%)`);
         lineargradient.addColorStop(1, `hsl(${(lineNumber + 1) / linesCount}turn, 100%, 50%)`);
         return lineargradient;
@@ -117,29 +117,29 @@ function drawEnigma(canvas: HTMLCanvasElement, enigma: AbstractEnigma, pathChar:
     /* draw plugboard */
     context.textAlign = 'center';
     context.textBaseline = 'middle';
-    enigma.plugBoard.exchangeTable.forEach((exchangee, i) => {
-        const from = dp.getAbsolutePlugCoord(i, 'in'), to = dp.getAbsolutePlugCoord(exchangee, 'out');
+    enigma.plugBoard.exchangeTable.forEach((plugToRotor, charIndex) => {
+        const from = dp.getAbsolutePlugCoord(charIndex, 'in'), to = dp.getAbsolutePlugCoord(plugToRotor, 'out');
         /* draw characters */
-        context.fillText(enigma.alphabet.at(i), from.x, from.y);
+        context.fillText(enigma.alphabet.at(charIndex), from.x, from.y);
         /* draw exchange cables */
         context.beginPath();
         context.moveTo(from.x, from.y);
         context.lineTo(to.x, to.y);
         [context.strokeStyle, context.lineWidth] =
-            exchangee == path?.plugToRotor ? [createGradient(from, to, 0), dp.pathWidth] /* 0 */
-            : exchangee == path?.holesToPrev[path.holesToPrev.length - 1] ? [createGradient(to, from, 4 * enigma.rotors.length + 4), dp.pathWidth] /* 4 * |rotors| + 4 */
-            : exchangee == i ? ['lightgray', 1]
+            plugToRotor == path?.plugToRotor ? [createGradient(from, to, 0), dp.pathWidth] /* 0 */
+            : plugToRotor == path?.holesToPrev[path.holesToPrev.length - 1] ? [createGradient(to, from, 4 * enigma.rotors.length + 4), dp.pathWidth] /* 4 * |rotors| + 4 */
+            : plugToRotor == charIndex ? ['lightgray', 1]
             : ['black', 1];
         context.stroke();
         context.lineWidth = 1;
         /* to next rotor */
-        const nextRotorCoord = dp.getAbsoluteHoleCoord(exchangee, dp.getAbsoluteRotorCenterCoords(0), 'out');
+        const nextRotorCoord = dp.getAbsoluteHoleCoord(plugToRotor, dp.getAbsoluteRotorCenterCoords(0), 'out');
         context.beginPath();
         context.moveTo(to.x, to.y);
         context.lineTo(nextRotorCoord.x, nextRotorCoord.y);
         [context.strokeStyle, context.lineWidth] =
-            exchangee == path?.plugToRotor ? [createGradient(to, nextRotorCoord, 1), dp.pathWidth] /* 1 */
-            : exchangee == path?.holesToPrev[path.holesToPrev.length - 1] ? [createGradient(nextRotorCoord, to, 4 * enigma.rotors.length + 3), dp.pathWidth] /* 4 * |rotors| + 3 */
+            plugToRotor == path?.plugToRotor ? [createGradient(to, nextRotorCoord, 1), dp.pathWidth] /* 1 */
+            : plugToRotor == path?.holesToPrev[path.holesToPrev.length - 1] ? [createGradient(nextRotorCoord, to, 4 * enigma.rotors.length + 3), dp.pathWidth] /* 4 * |rotors| + 3 */
             : ['lightgray', 1];
         context.stroke();
         context.lineWidth = 1;
