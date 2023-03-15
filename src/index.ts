@@ -15,7 +15,7 @@ const enigma = new EnigmaI(
 
 const enigmaCanvas = document.getElementById('enigmaCanvas') as HTMLCanvasElement;
 
-window.onload = window.onresize = () => { resizeCanvas(enigmaCanvas); };
+window.onload = window.onresize = () => { resizeCanvas(enigmaCanvas, enigma); };
 
 setInterval(() => {
     const enigmaContext = enigmaCanvas.getContext('2d');
@@ -27,31 +27,20 @@ setInterval(() => {
 }, 300);
 
 class DrawingProperty {
-    /* ロータの基準円半径に対する穴の半径の比 */
-    private static _holeRadiusRatioToRotorRadius = Math.sin(2 * Math.PI / enigma.alphabet.size / 2) * 0.9;
-    /* ロータの基準円半径に対するバウンディングボックスの幅の比 */
-    private static _boundingSquareSideRatioToRotorRadius = 2 * (1 + this._holeRadiusRatioToRotorRadius);
-    /* ロータの基準円半径に対するパディングの比 */
-    private static _paddingRatioToRotorRadius = Math.sin(2 * Math.PI / enigma.alphabet.size / 2) * 0.9;
-    /* ロータの基準円半径に対するキャンバスの幅の比 */
-    private static get _canvasWidthRatioToRotorRadius() {
-        return enigma.rotors.length * this._boundingSquareSideRatioToRotorRadius + (enigma.rotors.length + 1) * this._paddingRatioToRotorRadius;
-    }
-    /* ロータの基準円半径に対するキャンバスの高さの比 */
-    private static get _canvasHeightRatioToRotorRadius() {
-        return 2 * this._boundingSquareSideRatioToRotorRadius + 3 * this._paddingRatioToRotorRadius;
-    }
-    static get canvasWidthRatioToHeight() {
-        return this._canvasWidthRatioToRotorRadius / this._canvasHeightRatioToRotorRadius;
-    }
+    private _rotorsCount: number;
+    private _alphabetSize: number;
     private _rotorRadius: number;
     private _rotorInternalRadius: number;
+    private _holeRadius: number;
     private _boundingSquareSide: number;
     private _padding: number;
-    private _plugBoardWidth: number;
-    private _plugBoardHeight: number;
+    private _plugBoardSize: {width: number, height: number};
+    private _canvasSize: {width: number, height: number};
+    get canvasWidthRatioToHeight() {
+        return this._canvasSize.width / this._canvasSize.height;
+    }
     get holeRadius() {
-        return this._rotorRadius * DrawingProperty._holeRadiusRatioToRotorRadius;
+        return this._holeRadius;
     }
     get smallHoleRadius() {
         return this.holeRadius * (this._rotorInternalRadius / this._rotorRadius);
@@ -65,45 +54,62 @@ class DrawingProperty {
     get pathWidth() {
         return 3; /* HACK: この値に深い意味はない */
     }
-    constructor(canvas: HTMLCanvasElement) {
+    constructor(canvas: HTMLCanvasElement, enigma: AbstractEnigma) {
+        this._rotorsCount = enigma.rotors.length;
+        this._alphabetSize = enigma.alphabet.size;
+        const holeRadiusRatioToRotorRadius = Math.sin(2 * Math.PI / this._alphabetSize / 2) * 0.9; /* HACK: 0.9 という倍率にも深い意味はない */
+        const boundingSquareSideRatioToRotorRadius = 2 * (1 + holeRadiusRatioToRotorRadius);
+        const paddingRatioToRotorRadius = holeRadiusRatioToRotorRadius; /* HACK: とりあえず穴の半径と一緒にしておく */
+        const canvasSizeRatioToRotorRadius = {
+            width: this._rotorsCount * boundingSquareSideRatioToRotorRadius + (this._rotorsCount + 1) * paddingRatioToRotorRadius,
+            height: 2 * boundingSquareSideRatioToRotorRadius + 3 * paddingRatioToRotorRadius
+        };
         this._rotorRadius = Math.min(
-            canvas.width / DrawingProperty._canvasWidthRatioToRotorRadius,
-            canvas.height / DrawingProperty._canvasHeightRatioToRotorRadius
+            canvas.width / canvasSizeRatioToRotorRadius.width,
+            canvas.height / canvasSizeRatioToRotorRadius.height
         );
         this._rotorInternalRadius = this._rotorRadius * 0.7; /* HACK: 0.7 という倍率にも深い意味はない */
-        this._boundingSquareSide = this._rotorRadius * DrawingProperty._boundingSquareSideRatioToRotorRadius;
-        this._padding = this._rotorRadius * DrawingProperty._paddingRatioToRotorRadius;
-        this._plugBoardWidth = (enigma.rotors.length - 1) * this._boundingSquareSide + (enigma.rotors.length - 2) * this._padding;
-        this._plugBoardHeight = this._boundingSquareSide;
+        this._holeRadius = this._rotorRadius * holeRadiusRatioToRotorRadius;
+        this._boundingSquareSide = this._rotorRadius * boundingSquareSideRatioToRotorRadius;
+        this._padding = this._rotorRadius * paddingRatioToRotorRadius;
+        this._plugBoardSize = {
+            width: (enigma.rotors.length - 1) * this._boundingSquareSide + (enigma.rotors.length - 2) * this._padding,
+            height: this._boundingSquareSide
+        };
+        this._canvasSize = {
+            width: canvasSizeRatioToRotorRadius.width * this._rotorRadius,
+            height: canvasSizeRatioToRotorRadius.height * this._rotorRadius,
+        };
     }
     getAbsolutePlugCoord(n: number, inOut: 'in' | 'out') {
         return {
-            x: this._boundingSquareSide + 2 * this._padding + this._plugBoardWidth / 2 + this._plugBoardWidth * (n / (enigma.alphabet.size - 1) - 0.5),
-            y: this._boundingSquareSide + 2 * this._padding + this._plugBoardHeight / 2 + (inOut == 'in' ? 1 : -1) * this._plugBoardHeight / 2
+            x: this._boundingSquareSide + 2 * this._padding + this._plugBoardSize.width / 2 + this._plugBoardSize.width * (n / (this._alphabetSize - 1) - 0.5),
+            y: this._boundingSquareSide + 2 * this._padding + this._plugBoardSize.height / 2 + (inOut == 'in' ? 1 : -1) * this._plugBoardSize.height / 2
         }
     }
     getAbsoluteRotorCenterCoords(n: number) {
         return {
-            x: ((enigma.rotors.length - 1) - n) * this._boundingSquareSide + ((enigma.rotors.length - 1) - n + 1) * this._padding + this.holeRadius + this._rotorRadius,
+            x: ((this._rotorsCount - 1) - n) * this._boundingSquareSide + ((this._rotorsCount - 1) - n + 1) * this._padding + this.holeRadius + this._rotorRadius,
             y: this._boundingSquareSide / 2 + this._padding
         }
     }
     getAbsoluteHoleCoord(n: number, c: {x: number, y: number}, inOut: 'in' | 'out') {
         return {
-            x: (inOut == 'in' ? this._rotorInternalRadius : this._rotorRadius) * Math.cos(2 * Math.PI / enigma.alphabet.size * n - Math.PI / 2) + c.x,
-            y: (inOut == 'in' ? this._rotorInternalRadius : this._rotorRadius) * Math.sin(2 * Math.PI / enigma.alphabet.size * n - Math.PI / 2) + c.y
+            x: (inOut == 'in' ? this._rotorInternalRadius : this._rotorRadius) * Math.cos(2 * Math.PI / this._alphabetSize * n - Math.PI / 2) + c.x,
+            y: (inOut == 'in' ? this._rotorInternalRadius : this._rotorRadius) * Math.sin(2 * Math.PI / this._alphabetSize * n - Math.PI / 2) + c.y
         }
     }
 }
 
-function resizeCanvas(canvas: HTMLCanvasElement) {
+function resizeCanvas(canvas: HTMLCanvasElement, enigma: AbstractEnigma) {
     /* 幅が最大で画面の 95%、かつ高さが最大で画面の 2/3 を満たしつつなるべく大きくする */
     const maxWidth = document.documentElement.clientWidth * .95;
     const maxHeight = document.documentElement.clientHeight * (2 / 3);
+    const dp = new DrawingProperty(canvas, enigma);
     [canvas.width, canvas.height] =
-        maxWidth / DrawingProperty.canvasWidthRatioToHeight <= maxHeight
-            ? [maxWidth, maxWidth / DrawingProperty.canvasWidthRatioToHeight]
-            : [maxHeight * DrawingProperty.canvasWidthRatioToHeight, maxHeight];
+        maxWidth / dp.canvasWidthRatioToHeight <= maxHeight
+            ? [maxWidth, maxWidth / dp.canvasWidthRatioToHeight]
+            : [maxHeight * dp.canvasWidthRatioToHeight, maxHeight];
 }
 
 function drawEnigma(context: CanvasRenderingContext2D, enigma: AbstractEnigma, pathChar: string | null = null) {
@@ -137,7 +143,7 @@ function drawEnigma(context: CanvasRenderingContext2D, enigma: AbstractEnigma, p
         lineargradient.addColorStop(1, `hsl(${(lineNumber + 1) / linesCount}turn, 100%, 50%)`);
         return lineargradient;
     };
-    const dp = new DrawingProperty(context.canvas);
+    const dp = new DrawingProperty(context.canvas, enigma);
     const path = pathChar ? enigma.getPath(pathChar) : null;
     /* draw plugboard */
     context.textAlign = 'center';
