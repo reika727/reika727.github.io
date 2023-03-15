@@ -463,16 +463,15 @@ abstract class AbstractEnigma {
      */
     encrypt(str: string) {
         return [...str].map(char => {
+            if (this.alphabet.indexOf(char) === undefined) {
+                throw Error(`${char} in str is not in the alphabet.`);
+            }
             for (const rotor of this._rotors) {
                 if (!rotor.rotate()) {
                     break;
                 }
             }
-            const encrypted = this.plugBoard.alphabet.at(this.getPath(char).exchangedOut);
-            if (encrypted === undefined) {
-                throw Error(`${char} in str is not in the alphabet.`);
-            }
-            return encrypted;
+            return this.plugBoard.alphabet.at(this.getPath(char).exchangedOut);
         }).join('');
     }
 
