@@ -201,15 +201,14 @@ function drawEnigma(canvas: HTMLCanvasElement, enigma: AbstractEnigma, pathChar:
         }
     });
     /* draw reflector */
-    const drawns = Array<number>();
     for (let i = 0; i < enigma.alphabet.size; ++i) {
         const holeFrom = dp.getAbsoluteHoleCoord(i, dp.absoluteReflectorCenterCoord, 'out');
         const holeTo = dp.getAbsoluteHoleCoord(enigma.reflector.pass(i), dp.absoluteReflectorCenterCoord, 'out');
         /* draw hole */
         drawCircle(holeFrom, dp.holeRadius, 'black', 'stroke');
         /* draw connecting line */
-        if (drawns.includes(i)) {
-            continue;
+        if (enigma.reflector.pass(i) < i) {
+            continue; /* 二重に描画すると若干太くなってしまう */
         }
         if (enigma.reflector.pass(i) == path?.reflectorHoleToPrev) {
             drawLine(holeFrom, holeTo, createGradient(holeFrom, holeTo, 2 * enigma.rotors.length + 2), dp.pathWidth); /* 2 * |rotors| + 2 */
@@ -218,6 +217,5 @@ function drawEnigma(canvas: HTMLCanvasElement, enigma: AbstractEnigma, pathChar:
         } else {
             drawLine(holeFrom, holeTo, 'black', 1);
         }
-        drawns.push(enigma.reflector.pass(i));
     }
 }
