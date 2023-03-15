@@ -1,7 +1,7 @@
 'use strict';
 
 import assert from 'assert';
-import { Alphabet, EnigmaI, PlugBoard, AbstractEnigma } from './enigma';
+import { Alphabet, EnigmaI, PlugBoard, AbstractEnigma, Rotor, Reflector } from './enigma';
 
 const enigma = new EnigmaI(
     new PlugBoard(Alphabet.capitalLatin, ['A', 'M'], ['F', 'I'], ['N', 'V'], ['P', 'S'], ['T', 'U'], ['W', 'Z']),
@@ -13,17 +13,52 @@ const enigma = new EnigmaI(
     'AAA'
 );
 
-const enigmaCanvas = document.getElementById('enigmaCanvas') as HTMLCanvasElement;
+const iroha = new Alphabet('いろはにほへとちりぬるをわかよたれそつねならむうゐのおくやまけふこえてあさきゆめみしゑひもせすん');
 
-window.onload = window.onresize = () => { resizeCanvas(enigmaCanvas, enigma); };
+const irohaEnigma = new class extends AbstractEnigma {} (
+    new PlugBoard(
+        iroha,
+        /* あめつちの詞、二回目の「え」は「ん」で置き換えた */
+        ['あ', 'め'], ['つ', 'ち'], ['ほ', 'し'], ['そ', 'ら'], ['や', 'ま'], ['か', 'は'], ['み', 'ね'], ['た', 'に'],
+        ['く', 'も'], ['き', 'り'], ['む', 'ろ'], ['こ', 'け'], ['ひ', 'と'], ['い', 'ぬ'], ['う', 'へ'], ['す', 'ゑ'],
+        ['ゆ', 'わ'], ['さ', 'る'], ['お', 'ふ'], ['せ', 'よ'], ['え', 'の'], ['ん', 'を'], ['な', 'れ'], ['ゐ', 'て']
+    ),
+    [
+        /* 大為爾の歌、末尾に「ん」を追加した */
+        new Rotor(iroha, 'たゐにいてなつむわれをそきみめすとあさりおひゆくやましろのうちゑへるこらもはほせよえふねかけぬん', 'い'),
+        /* 鳥啼歌 */
+        new Rotor(iroha, 'とりなくこゑすゆめさませみよあけわたるひんかしをそらいろはえておきつへにほふねむれゐぬもやのうち', 'ろ'),
+        /* マジック・ザ・ギャザリング "Now I Know My ABC's" の日本語版フレーバーテキスト、「ゐ」「ゑ」を追加した */
+        new Rotor(iroha, 'れきせんへるすはやいくろこおになまけとわあふたちをひらりかみしものぬえむねほめてよつゆさそうゐゑ', 'は')
+    ],
+    /* 自動生成したものなので特に元ネタはない */
+    new Reflector(iroha, 'わせもねよとへるめえちないまほきおのんにをしゆてくそれゐゑかさすみぬうひけたむりこらやあはろふつ'),
+    'やまと',
+    'ことは'
+);
+
+const enigmaCanvas = document.getElementById('enigmaCanvas') as HTMLCanvasElement;
+const irohaEnigmaCanvas = document.getElementById('irohaEnigmaCanvas') as HTMLCanvasElement;
+
+window.onload = window.onresize = () => {
+    resizeCanvas(enigmaCanvas, enigma);
+    resizeCanvas(irohaEnigmaCanvas, irohaEnigma);
+};
 
 setInterval(() => {
     const enigmaContext = enigmaCanvas.getContext('2d');
     assert(enigmaContext);
     enigmaContext.clearRect(0, 0, enigmaCanvas.width, enigmaCanvas.height);
-    const char = enigma.alphabet.at(Math.floor(Math.random() * enigma.alphabet.size));
-    enigma.encrypt(char);
-    drawEnigma(enigmaContext, enigma, char);
+    const char1 = enigma.alphabet.at(Math.floor(Math.random() * enigma.alphabet.size));
+    enigma.encrypt(char1);
+    drawEnigma(enigmaContext, enigma, char1);
+
+    const irohaEnigmaContext = irohaEnigmaCanvas.getContext('2d');
+    assert(irohaEnigmaContext);
+    irohaEnigmaContext.clearRect(0, 0, irohaEnigmaCanvas.width, irohaEnigmaCanvas.height);
+    const char2 = irohaEnigma.alphabet.at(Math.floor(Math.random() * irohaEnigma.alphabet.size));
+    irohaEnigma.encrypt(char2);
+    drawEnigma(irohaEnigmaContext, irohaEnigma, char2);
 }, 300);
 
 class DrawingProperty {
