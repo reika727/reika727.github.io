@@ -98,17 +98,11 @@ class EnigmaIHandler {
 
 class IrohaEnigmaHandler {
     private static iroha = new Alphabet('いろはにほへとちりぬるをわかよたれそつねならむうゐのおくやまけふこえてあさきゆめみしゑひもせすん');
-    private _canvas: HTMLCanvasElement;
-    private _canvasContext: CanvasRenderingContext2D;
-    private _textArea: HTMLTextAreaElement;
-    private _resultField: HTMLTextAreaElement;
+    private _canvas = document.getElementById('irohaEnigmaCanvas') as HTMLCanvasElement;
+    private _canvasContext = this._canvas.getContext('2d');
+    private _textArea = document.getElementById('irohaEnigmaTextArea') as HTMLTextAreaElement;
+    private _resultField = document.getElementById('irohaEnigmaResult') as HTMLTextAreaElement;
     constructor() {
-        this._canvas = document.getElementById('irohaEnigmaCanvas') as HTMLCanvasElement;
-        const tmp = this._canvas.getContext('2d');
-        assert(tmp);
-        this._canvasContext = tmp;
-        this._textArea = document.getElementById('irohaEnigmaTextArea') as HTMLTextAreaElement;
-        this._resultField = document.getElementById('irohaEnigmaResult') as HTMLTextAreaElement;
         this._textArea.addEventListener('input', () => this.redrawEnigmaWithInputText());
     }
     createEnigma() {
@@ -135,6 +129,7 @@ class IrohaEnigmaHandler {
         );
     }
     redrawEnigmaWithInputText() {
+        assert(this._canvasContext);
         const input = this._textArea.value;
         const lastCharacter = input[input.length - 1];
         const enigma = this.createEnigma();
