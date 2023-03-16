@@ -16,9 +16,11 @@ class EnigmaIHandler {
     private _textArea = document.getElementById('enigmaTextArea') as HTMLTextAreaElement;
     private _resultField = document.getElementById('enigmaResult') as HTMLTextAreaElement;
     private _plugBoardInput = document.getElementById('plugBoardTextArea') as HTMLInputElement;
+    private _ringConfigInput = document.getElementById('ringConfig') as HTMLInputElement;
     constructor() {
         this._textArea.addEventListener('input', () => this.redrawEnigmaWithInputText());
         this._plugBoardInput.addEventListener('input', () => this.resetPlugBoard());
+        this._ringConfigInput.addEventListener('input', () => this.resetRings());
     }
     createEnigma() {
         return new EnigmaI(
@@ -46,6 +48,13 @@ class EnigmaIHandler {
         }
         const input = this._plugBoardInput.value;
         this._plugBoardSetting = input == '' ? [] : input.split(' ').map(s => [s[0].toUpperCase(), s[1].toUpperCase()]);
+        this.redrawEnigmaWithInputText();
+    }
+    resetRings() {
+        if (!this._ringConfigInput.validity.valid) {
+            return;
+        }
+        this._ringSetting = this._ringConfigInput.value.toUpperCase();
         this.redrawEnigmaWithInputText();
     }
     resizeAll() {

@@ -54,7 +54,8 @@
           </select>
         </div>
         <div class="autoCentering">
-          <input id="ringConfig" minlength="3", maxlength="3", placeholder="リング設定" size="1" style="flex: 1">
+          <label>リング設定：</label>
+          <input required id="ringConfig" value="AAA" minlength="3", maxlength="3" size="1" style="text-transform: uppercase; flex: 1;" pattern="[A-Za-z]{3}">
           <input id="rotationConfig" minlength="3", maxlength="3", placeholder="回転設定" size="1" style="flex: 1">
         </div>
       </div>
