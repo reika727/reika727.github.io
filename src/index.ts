@@ -4,12 +4,11 @@ import assert from 'assert';
 import { Alphabet, EnigmaI, PlugBoard, AbstractEnigma, Rotor, Reflector } from './enigma';
 
 class EnigmaIHandler {
-    private _plugBoardSetting: [string, string][] = [];
-    private _rotors = [
-        EnigmaI.rotorI,
-        EnigmaI.rotorII,
-        EnigmaI.rotorIII
+    private static _availableRotors = [
+        EnigmaI.rotorI, EnigmaI.rotorII, EnigmaI.rotorIII, EnigmaI.rotorIV, EnigmaI.rotorV
     ];
+    private _plugBoardSetting: [string, string][] = [];
+    private _rotorIndices = [2, 1, 0];
     private _reflector = EnigmaI.reflectorA;
     private _ringSetting = 'AAA';
     private _rotationSetting = 'AAA';
@@ -26,6 +25,7 @@ class EnigmaIHandler {
     private _ringConfigInput = document.getElementById('ringConfig') as HTMLInputElement;
     private _rotationConfigInput = document.getElementById('rotationConfig') as HTMLInputElement;
     constructor() {
+        this._rotorSelects.forEach((select, i) => select.options[this._rotorIndices[i]].selected = true);
         this._ringConfigInput.value = this._ringSetting;
         this._rotationConfigInput.value = this._rotationSetting;
         this._textArea.addEventListener('input', () => this.redrawEnigmaWithInputText());
@@ -37,9 +37,9 @@ class EnigmaIHandler {
     createEnigma() {
         return new EnigmaI(
             new PlugBoard(Alphabet.capitalLatin, ...this._plugBoardSetting),
-            this._rotors[0],
-            this._rotors[1],
-            this._rotors[2],
+            EnigmaIHandler._availableRotors[this._rotorIndices[0]],
+            EnigmaIHandler._availableRotors[this._rotorIndices[1]],
+            EnigmaIHandler._availableRotors[this._rotorIndices[2]],
             this._reflector,
             this._ringSetting,
             this._rotationSetting
@@ -63,14 +63,7 @@ class EnigmaIHandler {
         this.redrawEnigmaWithInputText();
     }
     resetRotor(n: number) {
-        const selected = this._rotorSelects[n].value;
-        this._rotors[n] = (
-            selected == '0' ? EnigmaI.rotorI
-            : selected == '1' ? EnigmaI.rotorII
-            : selected == '2' ? EnigmaI.rotorIII
-            : selected == '3' ? EnigmaI.rotorIV
-            : EnigmaI.rotorV
-        );
+        this._rotorIndices[n] = Number(this._rotorSelects[n].value);
         this.redrawEnigmaWithInputText();
     }
     resetRings() {
