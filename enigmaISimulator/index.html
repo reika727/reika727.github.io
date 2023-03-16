@@ -11,23 +11,23 @@
       ドイツ軍の暗号機<b>エニグマ I</b>のシミュレータです。
     </p>
     <div id="enigmaI" style="margin: 0 auto;">
-      <div class="auto-centering">
+      <div class="auto-centering-container">
         <canvas id="enigma-canvas"></canvas>
       </div>
-      <div class="auto-centering">
+      <div class="auto-centering-container">
         <textarea id="enigma-input-textarea" placeholder="大文字アルファベット「のみ」を暗号化します（それ以外の文字は暗号化されず出力されます）"></textarea>
       </div>
-      <div class="auto-centering">
+      <div class="auto-centering-container">
         <textarea readonly id="enigma-result-textarea" placeholder="ここに暗号化の結果が表示されます"></textarea>
       </div>
       <div style="border: 1px solid; padding: 1%;">
         <p style="text-align: center;">
           &#9881;&#65039; 細かい設定 &#9881;&#65039;
         </p>
-        <div class="auto-centering">
+        <div class="auto-centering-container">
           <input id="plugboard-input", placeholder="プラグボードで交換する文字を「AB DX FK ...」という感じで打ってください" style="text-transform: uppercase; flex: 1;" pattern="[A-Za-z][A-Za-z]( [A-Za-z][A-Za-z])*">
         </div>
-        <div class="auto-centering">
+        <div class="auto-centering-container">
           <select id="reflector-select" style="flex: 1;">
             <option value="0">REFLECTOR A</option>
             <option value="1">REFLECTOR B</option>
@@ -72,13 +72,13 @@
       細かい設定は<s>作るのがめんどくさかったので</s>ないです。
     </p>
     <div id="iroha-enigma" style="margin: 0 auto;">
-      <div class="auto-centering">
+      <div class="auto-centering-container">
         <canvas id="iroha-enigma-canvas"></canvas>
       </div>
-      <div class="auto-centering">
+      <div class="auto-centering-container">
         <textarea id="iroha-enigma-input-textarea" placeholder="ひらがな４８種「のみ」を暗号化します（それ以外の文字は暗号化されず出力されます）"></textarea>
       </div>
-      <div class="auto-centering">
+      <div class="auto-centering-container">
         <textarea readonly id="iroha-enigma-result-textarea" placeholder="ここに暗号化の結果が表示されます"></textarea>
       </div>
       <h2>裏話</h2>

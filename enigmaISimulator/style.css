@@ -2,15 +2,12 @@ textarea {
     width: 100%;
 }
 
-div {
-    margin: 1% 0;
-}
-
-.auto-centering {
-    display: flex;
-    justify-content: center;
-}
-
 input:invalid {
     background-color: pink;
+}
+
+.auto-centering-container {
+    margin: 1% 0;
+    display: flex;
+    justify-content: center;
 }
