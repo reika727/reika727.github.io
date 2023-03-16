@@ -45,6 +45,11 @@ class Alphabet {
     static get capitalLatin() { return new Alphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ'); }
 
     /**
+     * いろは
+     */
+    static get iroha() { return new Alphabet('いろはにほへとちりぬるをわかよたれそつねならむうゐのおくやまけふこえてあさきゆめみしゑひもせすん'); }
+
+    /**
      * 使用する文字の配列（重複は排除される）
      */
     private _characters: string[];
