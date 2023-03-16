@@ -97,7 +97,7 @@ class EnigmaIHandler {
 }
 
 class IrohaEnigmaHandler {
-    private static iroha = new Alphabet('いろはにほへとちりぬるをわかよたれそつねならむうゐのおくやまけふこえてあさきゆめみしゑひもせすん');
+    private static _iroha = new Alphabet('いろはにほへとちりぬるをわかよたれそつねならむうゐのおくやまけふこえてあさきゆめみしゑひもせすん');
     private _canvas = document.getElementById('iroha-enigma-canvas') as HTMLCanvasElement;
     private _canvasContext = this._canvas.getContext('2d');
     private _inputTextarea = document.getElementById('iroha-enigma-input-textarea') as HTMLTextAreaElement;
@@ -108,7 +108,7 @@ class IrohaEnigmaHandler {
     private createEnigma() {
         return new class extends AbstractEnigma {} (
             new PlugBoard(
-                IrohaEnigmaHandler.iroha,
+                IrohaEnigmaHandler._iroha,
                 /* あめつちの詞、二回目の「え」は「ん」で置き換えた */
                 ['あ', 'め'], ['つ', 'ち'], ['ほ', 'し'], ['そ', 'ら'], ['や', 'ま'], ['か', 'は'], ['み', 'ね'], ['た', 'に'],
                 ['く', 'も'], ['き', 'り'], ['む', 'ろ'], ['こ', 'け'], ['ひ', 'と'], ['い', 'ぬ'], ['う', 'へ'], ['す', 'ゑ'],
@@ -116,20 +116,20 @@ class IrohaEnigmaHandler {
             ),
             [
                 /* 大為爾の歌、末尾に「ん」を追加した */
-                new Rotor(IrohaEnigmaHandler.iroha, 'たゐにいてなつむわれをそきみめすとあさりおひゆくやましろのうちゑへるこらもはほせよえふねかけぬん', 'い'),
+                new Rotor(IrohaEnigmaHandler._iroha, 'たゐにいてなつむわれをそきみめすとあさりおひゆくやましろのうちゑへるこらもはほせよえふねかけぬん', 'い'),
                 /* 鳥啼歌 */
-                new Rotor(IrohaEnigmaHandler.iroha, 'とりなくこゑすゆめさませみよあけわたるひんかしをそらいろはえておきつへにほふねむれゐぬもやのうち', 'ろ'),
+                new Rotor(IrohaEnigmaHandler._iroha, 'とりなくこゑすゆめさませみよあけわたるひんかしをそらいろはえておきつへにほふねむれゐぬもやのうち', 'ろ'),
                 /* マジック・ザ・ギャザリング "Now I Know My ABC's" の日本語版フレーバーテキスト、「ゐ」「ゑ」を追加した */
-                new Rotor(IrohaEnigmaHandler.iroha, 'れきせんへるすはやいくろこおになまけとわあふたちをひらりかみしものぬえむねほめてよつゆさそうゐゑ', 'は')
+                new Rotor(IrohaEnigmaHandler._iroha, 'れきせんへるすはやいくろこおになまけとわあふたちをひらりかみしものぬえむねほめてよつゆさそうゐゑ', 'は')
             ],
             /* 自動生成したものなので特に元ネタはない */
-            new Reflector(IrohaEnigmaHandler.iroha, 'わせもねよとへるめえちないまほきおのんにをしゆてくそれゐゑかさすみぬうひけたむりこらやあはろふつ'),
+            new Reflector(IrohaEnigmaHandler._iroha, 'わせもねよとへるめえちないまほきおのんにをしゆてくそれゐゑかさすみぬうひけたむりこらやあはろふつ'),
             'やまと',
             'ことは'
         );
     }
     resizeAll() {
-        resizeCanvas(this._canvas, 3, IrohaEnigmaHandler.iroha.size);
+        resizeCanvas(this._canvas, 3, IrohaEnigmaHandler._iroha.size);
         (document.getElementById('iroha-enigma') as HTMLDivElement).style.width = this._canvas.style.width;
     }
     redrawEnigmaWithInputText() {
