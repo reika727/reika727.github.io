@@ -11,18 +11,14 @@ class EnigmaIHandler {
     private _reflector = EnigmaI.reflectorA;
     private _ringSetting = 'AAA';
     private _rotationSetting = 'AAA';
-    private _canvas: HTMLCanvasElement;
-    private _canvasContext: CanvasRenderingContext2D;
-    private _textArea: HTMLTextAreaElement;
-    private _resultField: HTMLTextAreaElement;
+    private _canvas = document.getElementById('enigmaCanvas') as HTMLCanvasElement;
+    private _canvasContext = this._canvas.getContext('2d');
+    private _textArea = document.getElementById('enigmaTextArea') as HTMLTextAreaElement;
+    private _resultField = document.getElementById('enigmaResult') as HTMLTextAreaElement;
+    private _plugBoardInput = document.getElementById('plugBoardTextArea') as HTMLInputElement;
     constructor() {
-        this._canvas = document.getElementById('enigmaCanvas') as HTMLCanvasElement;
-        const tmp = this._canvas.getContext('2d');
-        assert(tmp);
-        this._canvasContext = tmp;
-        this._textArea = document.getElementById('enigmaTextArea') as HTMLTextAreaElement;
-        this._resultField = document.getElementById('enigmaResult') as HTMLTextAreaElement;
         this._textArea.addEventListener('input', () => this.redrawEnigmaWithInputText());
+        this._plugBoardInput.addEventListener('input', () => this.resetPlugBoard());
     }
     createEnigma() {
         return new EnigmaI(
@@ -36,12 +32,21 @@ class EnigmaIHandler {
         );
     }
     redrawEnigmaWithInputText() {
+        assert(this._canvasContext);
         const input = this._textArea.value;
         const lastCharacter = input[input.length - 1];
         const enigma = this.createEnigma();
         this._resultField.value = [...input].map(c => enigma.alphabet.contains(c) ? enigma.encrypt(c) : c).join('');
         this._canvasContext.clearRect(0, 0, this._canvas.width, this._canvas.height);
         drawEnigma(this._canvasContext, enigma, enigma.alphabet.contains(lastCharacter) ? lastCharacter : null);
+    }
+    resetPlugBoard() {
+        if (!this._plugBoardInput.validity.valid) {
+            return;
+        }
+        const input = this._plugBoardInput.value;
+        this._plugBoardSetting = input == '' ? [] : input.split(' ').map(s => [s[0].toUpperCase(), s[1].toUpperCase()]);
+        this.redrawEnigmaWithInputText();
     }
     resizeAll() {
         resizeCanvas(this._canvas, 3, Alphabet.capitalLatin.size);

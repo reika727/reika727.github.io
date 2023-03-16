@@ -10,3 +10,7 @@ div {
     display: flex;
     justify-content: center;
 }
+
+input:invalid {
+    background-color: pink;
+}
