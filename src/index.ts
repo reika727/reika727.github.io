@@ -40,7 +40,7 @@ class EnigmaIHandler {
         this._ringInput.addEventListener('input', () => this.resetRings());
         this._rotationInput.addEventListener('input', () => this.resetRotations());
     }
-    createEnigma() {
+    private createEnigma() {
         return new EnigmaI(
             new PlugBoard(Alphabet.capitalLatin, ...this._plugBoardSetting),
             EnigmaIHandler._availableRotors[this._rotorIndices[0]],
@@ -51,16 +51,7 @@ class EnigmaIHandler {
             this._rotationSetting
         );
     }
-    redrawEnigmaWithInputText() {
-        assert(this._canvasContext);
-        const input = this._inputTextarea.value;
-        const lastCharacter = input[input.length - 1];
-        const enigma = this.createEnigma();
-        this._resultTextarea.value = [...input].map(c => enigma.alphabet.contains(c) ? enigma.encrypt(c) : c).join('');
-        this._canvasContext.clearRect(0, 0, this._canvas.width, this._canvas.height);
-        drawEnigma(this._canvasContext, enigma, enigma.alphabet.contains(lastCharacter) ? lastCharacter : null);
-    }
-    resetPlugBoard() {
+    private resetPlugBoard() {
         if (!this._plugboardInput.validity.valid) {
             return;
         }
@@ -68,22 +59,22 @@ class EnigmaIHandler {
         this._plugBoardSetting = input == '' ? [] : input.split(' ').map(s => [s[0].toUpperCase(), s[1].toUpperCase()]);
         this.redrawEnigmaWithInputText();
     }
-    resetReflector() {
+    private resetReflector() {
         this._reflectorIndex = Number(this._reflectorSelect.value);
         this.redrawEnigmaWithInputText();
     }
-    resetRotor(n: number) {
+    private resetRotor(n: number) {
         this._rotorIndices[n] = Number(this._rotorSelects[n].value);
         this.redrawEnigmaWithInputText();
     }
-    resetRings() {
+    private resetRings() {
         if (!this._ringInput.validity.valid) {
             return;
         }
         this._ringSetting = this._ringInput.value.toUpperCase().split('').reverse().join('');
         this.redrawEnigmaWithInputText();
     }
-    resetRotations() {
+    private resetRotations() {
         if (!this._rotationInput.validity.valid) {
             return;
         }
@@ -93,6 +84,15 @@ class EnigmaIHandler {
     resizeAll() {
         resizeCanvas(this._canvas, 3, Alphabet.capitalLatin.size);
         (document.getElementById('enigmaI') as HTMLDivElement).style.width = this._canvas.style.width;
+    }
+    redrawEnigmaWithInputText() {
+        assert(this._canvasContext);
+        const input = this._inputTextarea.value;
+        const lastCharacter = input[input.length - 1];
+        const enigma = this.createEnigma();
+        this._resultTextarea.value = [...input].map(c => enigma.alphabet.contains(c) ? enigma.encrypt(c) : c).join('');
+        this._canvasContext.clearRect(0, 0, this._canvas.width, this._canvas.height);
+        drawEnigma(this._canvasContext, enigma, enigma.alphabet.contains(lastCharacter) ? lastCharacter : null);
     }
 }
 
@@ -105,7 +105,7 @@ class IrohaEnigmaHandler {
     constructor() {
         this._inputTextarea.addEventListener('input', () => this.redrawEnigmaWithInputText());
     }
-    createEnigma() {
+    private createEnigma() {
         return new class extends AbstractEnigma {} (
             new PlugBoard(
                 IrohaEnigmaHandler.iroha,
@@ -128,6 +128,10 @@ class IrohaEnigmaHandler {
             'ことは'
         );
     }
+    resizeAll() {
+        resizeCanvas(this._canvas, 3, IrohaEnigmaHandler.iroha.size);
+        (document.getElementById('iroha-enigma') as HTMLDivElement).style.width = this._canvas.style.width;
+    }
     redrawEnigmaWithInputText() {
         assert(this._canvasContext);
         const input = this._inputTextarea.value;
@@ -136,10 +140,6 @@ class IrohaEnigmaHandler {
         this._resultTextarea.value = [...input].map(c => enigma.alphabet.contains(c) ? enigma.encrypt(c) : c).join('');
         this._canvasContext.clearRect(0, 0, this._canvas.width, this._canvas.height);
         drawEnigma(this._canvasContext, enigma, enigma.alphabet.contains(lastCharacter) ? lastCharacter : null);
-    }
-    resizeAll() {
-        resizeCanvas(this._canvas, 3, IrohaEnigmaHandler.iroha.size);
-        (document.getElementById('iroha-enigma') as HTMLDivElement).style.width = this._canvas.style.width;
     }
 }
 
