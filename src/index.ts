@@ -15,19 +15,19 @@ class EnigmaIHandler {
     private _reflectorIndex = 0;
     private _ringSetting = 'AAA';
     private _rotationSetting = 'AAA';
-    private _canvas = document.getElementById('enigmaCanvas') as HTMLCanvasElement;
+    private _canvas = document.getElementById('enigma-canvas') as HTMLCanvasElement;
     private _canvasContext = this._canvas.getContext('2d');
-    private _textArea = document.getElementById('enigmaTextArea') as HTMLTextAreaElement;
-    private _resultField = document.getElementById('enigmaResult') as HTMLTextAreaElement;
-    private _plugBoardInput = document.getElementById('plugBoardTextArea') as HTMLInputElement;
+    private _textArea = document.getElementById('enigma-input-textarea') as HTMLTextAreaElement;
+    private _resultField = document.getElementById('enigma-result-textarea') as HTMLTextAreaElement;
+    private _plugBoardInput = document.getElementById('plugboard-input') as HTMLInputElement;
     private _reflectorSelect = document.getElementById('reflector-select') as HTMLSelectElement;
     private _rotorSelects = [
-        document.getElementById('rotor0-select') as HTMLSelectElement,
+        document.getElementById('rotor2-select') as HTMLSelectElement,
         document.getElementById('rotor1-select') as HTMLSelectElement,
-        document.getElementById('rotor2-select') as HTMLSelectElement
+        document.getElementById('rotor0-select') as HTMLSelectElement
     ];
-    private _ringConfigInput = document.getElementById('ringConfig') as HTMLInputElement;
-    private _rotationConfigInput = document.getElementById('rotationConfig') as HTMLInputElement;
+    private _ringConfigInput = document.getElementById('ring-input') as HTMLInputElement;
+    private _rotationConfigInput = document.getElementById('rotation-input') as HTMLInputElement;
     constructor() {
         this._reflectorSelect.options[this._reflectorIndex].selected = true;
         this._rotorSelects.forEach((select, i) => select.options[this._rotorIndices[i]].selected = true);
@@ -98,10 +98,10 @@ class EnigmaIHandler {
 
 class IrohaEnigmaHandler {
     private static iroha = new Alphabet('いろはにほへとちりぬるをわかよたれそつねならむうゐのおくやまけふこえてあさきゆめみしゑひもせすん');
-    private _canvas = document.getElementById('irohaEnigmaCanvas') as HTMLCanvasElement;
+    private _canvas = document.getElementById('iroha-enigma-canvas') as HTMLCanvasElement;
     private _canvasContext = this._canvas.getContext('2d');
-    private _textArea = document.getElementById('irohaEnigmaTextArea') as HTMLTextAreaElement;
-    private _resultField = document.getElementById('irohaEnigmaResult') as HTMLTextAreaElement;
+    private _textArea = document.getElementById('iroha-enigma-input-textarea') as HTMLTextAreaElement;
+    private _resultField = document.getElementById('iroha-enigma-result-textarea') as HTMLTextAreaElement;
     constructor() {
         this._textArea.addEventListener('input', () => this.redrawEnigmaWithInputText());
     }
@@ -139,7 +139,7 @@ class IrohaEnigmaHandler {
     }
     resizeAll() {
         resizeCanvas(this._canvas, 3, IrohaEnigmaHandler.iroha.size);
-        (document.getElementById('irohaEnigma') as HTMLDivElement).style.width = this._canvas.style.width;
+        (document.getElementById('iroha-enigma') as HTMLDivElement).style.width = this._canvas.style.width;
     }
 }
 

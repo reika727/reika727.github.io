@@ -6,7 +6,7 @@ div {
     margin: 1% 0;
 }
 
-.autoCentering {
+.auto-centering {
     display: flex;
     justify-content: center;
 }
