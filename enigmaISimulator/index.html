@@ -53,10 +53,15 @@
             <option value="5">ROTOR V</option>
           </select>
         </div>
-        <div class="autoCentering">
-          <label>リング設定：</label>
-          <input required id="ringConfig" value="AAA" minlength="3", maxlength="3" size="1" style="text-transform: uppercase; flex: 1;" pattern="[A-Za-z]{3}">
-          <input id="rotationConfig" minlength="3", maxlength="3", placeholder="回転設定" size="1" style="flex: 1">
+        <div style="display: flex; justify-content: space-around;">
+          <div>
+            <label>リング設定：</label>
+            <input required id="ringConfig" value="AAA" minlength="3", maxlength="3" size="1" style="text-transform: uppercase;" pattern="[A-Za-z]{3}">
+          </div>
+          <div>
+            <label>回転設定：</label>
+            <input required id="rotationConfig" value="AAA" minlength="3", maxlength="3" size="1" style="text-transform: uppercase;" pattern="[A-Za-z]{3}">
+          </div>
         </div>
       </div>
     </div>

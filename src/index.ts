@@ -17,10 +17,12 @@ class EnigmaIHandler {
     private _resultField = document.getElementById('enigmaResult') as HTMLTextAreaElement;
     private _plugBoardInput = document.getElementById('plugBoardTextArea') as HTMLInputElement;
     private _ringConfigInput = document.getElementById('ringConfig') as HTMLInputElement;
+    private _rotationConfigInput = document.getElementById('rotationConfig') as HTMLInputElement;
     constructor() {
         this._textArea.addEventListener('input', () => this.redrawEnigmaWithInputText());
         this._plugBoardInput.addEventListener('input', () => this.resetPlugBoard());
         this._ringConfigInput.addEventListener('input', () => this.resetRings());
+        this._rotationConfigInput.addEventListener('input', () => this.resetRotations());
     }
     createEnigma() {
         return new EnigmaI(
@@ -54,7 +56,14 @@ class EnigmaIHandler {
         if (!this._ringConfigInput.validity.valid) {
             return;
         }
-        this._ringSetting = this._ringConfigInput.value.toUpperCase();
+        this._ringSetting = this._ringConfigInput.value.toUpperCase().split('').reverse().join('');
+        this.redrawEnigmaWithInputText();
+    }
+    resetRotations() {
+        if (!this._rotationConfigInput.validity.valid) {
+            return;
+        }
+        this._rotationSetting = this._rotationConfigInput.value.toUpperCase().split('').reverse().join('');
         this.redrawEnigmaWithInputText();
     }
     resizeAll() {
