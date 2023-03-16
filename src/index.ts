@@ -1,7 +1,7 @@
 'use strict';
 
 import assert from 'assert';
-import { Alphabet, EnigmaI, PlugBoard, AbstractEnigma, Rotor, Reflector } from './enigma';
+import { Alphabet, PlugBoard, Rotor, Reflector, AbstractEnigma, EnigmaI } from './enigma';
 
 class EnigmaIHandler {
     private static _availableRotors = [
