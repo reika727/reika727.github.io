@@ -26,6 +26,8 @@ class EnigmaIHandler {
     private _ringConfigInput = document.getElementById('ringConfig') as HTMLInputElement;
     private _rotationConfigInput = document.getElementById('rotationConfig') as HTMLInputElement;
     constructor() {
+        this._ringConfigInput.value = this._ringSetting;
+        this._rotationConfigInput.value = this._rotationSetting;
         this._textArea.addEventListener('input', () => this.redrawEnigmaWithInputText());
         this._plugBoardInput.addEventListener('input', () => this.resetPlugBoard());
         this._rotorSelects.forEach((select, i) => select.addEventListener('change', () => this.resetRotor(i)));
