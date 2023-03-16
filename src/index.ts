@@ -17,28 +17,28 @@ class EnigmaIHandler {
     private _rotationSetting = 'AAA';
     private _canvas = document.getElementById('enigma-canvas') as HTMLCanvasElement;
     private _canvasContext = this._canvas.getContext('2d');
-    private _textArea = document.getElementById('enigma-input-textarea') as HTMLTextAreaElement;
-    private _resultField = document.getElementById('enigma-result-textarea') as HTMLTextAreaElement;
-    private _plugBoardInput = document.getElementById('plugboard-input') as HTMLInputElement;
+    private _inputTextarea = document.getElementById('enigma-input-textarea') as HTMLTextAreaElement;
+    private _resultTextarea = document.getElementById('enigma-result-textarea') as HTMLTextAreaElement;
+    private _plugboardInput = document.getElementById('plugboard-input') as HTMLInputElement;
     private _reflectorSelect = document.getElementById('reflector-select') as HTMLSelectElement;
     private _rotorSelects = [
         document.getElementById('rotor2-select') as HTMLSelectElement,
         document.getElementById('rotor1-select') as HTMLSelectElement,
         document.getElementById('rotor0-select') as HTMLSelectElement
     ];
-    private _ringConfigInput = document.getElementById('ring-input') as HTMLInputElement;
-    private _rotationConfigInput = document.getElementById('rotation-input') as HTMLInputElement;
+    private _ringInput = document.getElementById('ring-input') as HTMLInputElement;
+    private _rotationInput = document.getElementById('rotation-input') as HTMLInputElement;
     constructor() {
         this._reflectorSelect.options[this._reflectorIndex].selected = true;
         this._rotorSelects.forEach((select, i) => select.options[this._rotorIndices[i]].selected = true);
-        this._ringConfigInput.value = this._ringSetting;
-        this._rotationConfigInput.value = this._rotationSetting;
-        this._textArea.addEventListener('input', () => this.redrawEnigmaWithInputText());
-        this._plugBoardInput.addEventListener('input', () => this.resetPlugBoard());
+        this._ringInput.value = this._ringSetting;
+        this._rotationInput.value = this._rotationSetting;
+        this._inputTextarea.addEventListener('input', () => this.redrawEnigmaWithInputText());
+        this._plugboardInput.addEventListener('input', () => this.resetPlugBoard());
         this._reflectorSelect.addEventListener('change', () => this.resetReflector());
         this._rotorSelects.forEach((select, i) => select.addEventListener('change', () => this.resetRotor(i)));
-        this._ringConfigInput.addEventListener('input', () => this.resetRings());
-        this._rotationConfigInput.addEventListener('input', () => this.resetRotations());
+        this._ringInput.addEventListener('input', () => this.resetRings());
+        this._rotationInput.addEventListener('input', () => this.resetRotations());
     }
     createEnigma() {
         return new EnigmaI(
@@ -53,18 +53,18 @@ class EnigmaIHandler {
     }
     redrawEnigmaWithInputText() {
         assert(this._canvasContext);
-        const input = this._textArea.value;
+        const input = this._inputTextarea.value;
         const lastCharacter = input[input.length - 1];
         const enigma = this.createEnigma();
-        this._resultField.value = [...input].map(c => enigma.alphabet.contains(c) ? enigma.encrypt(c) : c).join('');
+        this._resultTextarea.value = [...input].map(c => enigma.alphabet.contains(c) ? enigma.encrypt(c) : c).join('');
         this._canvasContext.clearRect(0, 0, this._canvas.width, this._canvas.height);
         drawEnigma(this._canvasContext, enigma, enigma.alphabet.contains(lastCharacter) ? lastCharacter : null);
     }
     resetPlugBoard() {
-        if (!this._plugBoardInput.validity.valid) {
+        if (!this._plugboardInput.validity.valid) {
             return;
         }
-        const input = this._plugBoardInput.value;
+        const input = this._plugboardInput.value;
         this._plugBoardSetting = input == '' ? [] : input.split(' ').map(s => [s[0].toUpperCase(), s[1].toUpperCase()]);
         this.redrawEnigmaWithInputText();
     }
@@ -77,17 +77,17 @@ class EnigmaIHandler {
         this.redrawEnigmaWithInputText();
     }
     resetRings() {
-        if (!this._ringConfigInput.validity.valid) {
+        if (!this._ringInput.validity.valid) {
             return;
         }
-        this._ringSetting = this._ringConfigInput.value.toUpperCase().split('').reverse().join('');
+        this._ringSetting = this._ringInput.value.toUpperCase().split('').reverse().join('');
         this.redrawEnigmaWithInputText();
     }
     resetRotations() {
-        if (!this._rotationConfigInput.validity.valid) {
+        if (!this._rotationInput.validity.valid) {
             return;
         }
-        this._rotationSetting = this._rotationConfigInput.value.toUpperCase().split('').reverse().join('');
+        this._rotationSetting = this._rotationInput.value.toUpperCase().split('').reverse().join('');
         this.redrawEnigmaWithInputText();
     }
     resizeAll() {
@@ -100,10 +100,10 @@ class IrohaEnigmaHandler {
     private static iroha = new Alphabet('いろはにほへとちりぬるをわかよたれそつねならむうゐのおくやまけふこえてあさきゆめみしゑひもせすん');
     private _canvas = document.getElementById('iroha-enigma-canvas') as HTMLCanvasElement;
     private _canvasContext = this._canvas.getContext('2d');
-    private _textArea = document.getElementById('iroha-enigma-input-textarea') as HTMLTextAreaElement;
-    private _resultField = document.getElementById('iroha-enigma-result-textarea') as HTMLTextAreaElement;
+    private _inputTextarea = document.getElementById('iroha-enigma-input-textarea') as HTMLTextAreaElement;
+    private _resultTextarea = document.getElementById('iroha-enigma-result-textarea') as HTMLTextAreaElement;
     constructor() {
-        this._textArea.addEventListener('input', () => this.redrawEnigmaWithInputText());
+        this._inputTextarea.addEventListener('input', () => this.redrawEnigmaWithInputText());
     }
     createEnigma() {
         return new class extends AbstractEnigma {} (
@@ -130,10 +130,10 @@ class IrohaEnigmaHandler {
     }
     redrawEnigmaWithInputText() {
         assert(this._canvasContext);
-        const input = this._textArea.value;
+        const input = this._inputTextarea.value;
         const lastCharacter = input[input.length - 1];
         const enigma = this.createEnigma();
-        this._resultField.value = [...input].map(c => enigma.alphabet.contains(c) ? enigma.encrypt(c) : c).join('');
+        this._resultTextarea.value = [...input].map(c => enigma.alphabet.contains(c) ? enigma.encrypt(c) : c).join('');
         this._canvasContext.clearRect(0, 0, this._canvas.width, this._canvas.height);
         drawEnigma(this._canvasContext, enigma, enigma.alphabet.contains(lastCharacter) ? lastCharacter : null);
     }
