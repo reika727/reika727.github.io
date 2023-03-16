@@ -5,9 +5,11 @@ import { Alphabet, EnigmaI, PlugBoard, AbstractEnigma, Rotor, Reflector } from '
 
 class EnigmaIHandler {
     private _plugBoardSetting: [string, string][] = [];
-    private _rotor1 = EnigmaI.rotorI;
-    private _rotor2 = EnigmaI.rotorII;
-    private _rotor3 = EnigmaI.rotorIII;
+    private _rotors = [
+        EnigmaI.rotorI,
+        EnigmaI.rotorII,
+        EnigmaI.rotorIII
+    ];
     private _reflector = EnigmaI.reflectorA;
     private _ringSetting = 'AAA';
     private _rotationSetting = 'AAA';
@@ -16,20 +18,26 @@ class EnigmaIHandler {
     private _textArea = document.getElementById('enigmaTextArea') as HTMLTextAreaElement;
     private _resultField = document.getElementById('enigmaResult') as HTMLTextAreaElement;
     private _plugBoardInput = document.getElementById('plugBoardTextArea') as HTMLInputElement;
+    private _rotorSelects = [
+        document.getElementById('rotor0-select') as HTMLSelectElement,
+        document.getElementById('rotor1-select') as HTMLSelectElement,
+        document.getElementById('rotor2-select') as HTMLSelectElement
+    ];
     private _ringConfigInput = document.getElementById('ringConfig') as HTMLInputElement;
     private _rotationConfigInput = document.getElementById('rotationConfig') as HTMLInputElement;
     constructor() {
         this._textArea.addEventListener('input', () => this.redrawEnigmaWithInputText());
         this._plugBoardInput.addEventListener('input', () => this.resetPlugBoard());
+        this._rotorSelects.forEach((select, i) => select.addEventListener('change', () => this.resetRotor(i)));
         this._ringConfigInput.addEventListener('input', () => this.resetRings());
         this._rotationConfigInput.addEventListener('input', () => this.resetRotations());
     }
     createEnigma() {
         return new EnigmaI(
             new PlugBoard(Alphabet.capitalLatin, ...this._plugBoardSetting),
-            this._rotor1,
-            this._rotor2,
-            this._rotor3,
+            this._rotors[0],
+            this._rotors[1],
+            this._rotors[2],
             this._reflector,
             this._ringSetting,
             this._rotationSetting
@@ -50,6 +58,17 @@ class EnigmaIHandler {
         }
         const input = this._plugBoardInput.value;
         this._plugBoardSetting = input == '' ? [] : input.split(' ').map(s => [s[0].toUpperCase(), s[1].toUpperCase()]);
+        this.redrawEnigmaWithInputText();
+    }
+    resetRotor(n: number) {
+        const selected = this._rotorSelects[n].value;
+        this._rotors[n] = (
+            selected == '0' ? EnigmaI.rotorI
+            : selected == '1' ? EnigmaI.rotorII
+            : selected == '2' ? EnigmaI.rotorIII
+            : selected == '3' ? EnigmaI.rotorIV
+            : EnigmaI.rotorV
+        );
         this.redrawEnigmaWithInputText();
     }
     resetRings() {

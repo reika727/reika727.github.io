@@ -28,29 +28,26 @@
           <input id="plugBoardTextArea", placeholder="プラグボードで交換する文字を「AB DX FK ...」という感じで打ってください" style="text-transform: uppercase; flex: 1;" pattern="[A-Za-z][A-Za-z]( [A-Za-z][A-Za-z])*">
         </div>
         <div class="autoCentering">
-          <select id="rotor3-select" style="flex: 1;">
-            <option hidden>左端のロータ</option>
-            <option value="1">ROTOR I</option>
-            <option value="2">ROTOR II</option>
-            <option value="3">ROTOR III</option>
-            <option value="4">ROTOR IV</option>
-            <option value="5">ROTOR V</option>
-          </select>
           <select id="rotor2-select" style="flex: 1;">
-            <option hidden>真ん中のロータ</option>
-            <option value="1">ROTOR I</option>
-            <option value="2">ROTOR II</option>
-            <option value="3">ROTOR III</option>
-            <option value="4">ROTOR IV</option>
-            <option value="5">ROTOR V</option>
+            <option value="0" selected>ROTOR I</option>
+            <option value="1">ROTOR II</option>
+            <option value="2">ROTOR III</option>
+            <option value="3">ROTOR IV</option>
+            <option value="4">ROTOR V</option>
           </select>
           <select id="rotor1-select" style="flex: 1;">
-            <option hidden>右端のロータ</option>
-            <option value="1">ROTOR I</option>
-            <option value="2">ROTOR II</option>
-            <option value="3">ROTOR III</option>
-            <option value="4">ROTOR IV</option>
-            <option value="5">ROTOR V</option>
+            <option value="0">ROTOR I</option>
+            <option value="1" selected>ROTOR II</option>
+            <option value="2">ROTOR III</option>
+            <option value="3">ROTOR IV</option>
+            <option value="4">ROTOR V</option>
+          </select>
+          <select id="rotor0-select" style="flex: 1;">
+            <option value="0">ROTOR I</option>
+            <option value="1">ROTOR II</option>
+            <option value="2" selected>ROTOR III</option>
+            <option value="3">ROTOR IV</option>
+            <option value="4">ROTOR V</option>
           </select>
         </div>
         <div style="display: flex; justify-content: space-around;">
