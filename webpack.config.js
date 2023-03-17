@@ -1,12 +1,11 @@
 const path = require('path');
 const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   mode: 'development',
-  entry: path.join(__dirname, '/src/index.ts'),
-  output: {
-    filename: 'index.js',
-    path: path.join(__dirname, '/dist/')
+  entry: {
+    enigma: path.join(__dirname, '/src/enigmaISimulator/index.ts')
   },
   module: {
     rules: [
@@ -14,6 +13,10 @@ module.exports = {
         test: /\.ts$/,
         use: 'ts-loader',
         exclude: /node_modules/
+      },
+      {
+        test: /\.html$/,
+        loader: 'html-loader'
       }
     ]
   },
@@ -25,6 +28,14 @@ module.exports = {
   plugins: [
     new webpack.ProvidePlugin({
       process: 'process/browser'
+    }),
+    new HtmlWebpackPlugin({
+      template: './src/index.html',
+      filename: 'index.html'
+    }),
+    new HtmlWebpackPlugin({
+      template: './src/enigmaISimulator/index.html',
+      filename: 'enigmaISimulator/index.html'
     })
   ]
 };

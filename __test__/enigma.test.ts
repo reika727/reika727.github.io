@@ -1,6 +1,6 @@
 'use strict';
 
-import { Alphabet, PlugBoard, M4 } from '../src/enigma';
+import { Alphabet, PlugBoard, M4 } from '../src/enigmaISimulator/enigma';
 
 /* SOURCE: https://www.bytereef.org/m4-project-first-break.html */
 test('M4 FIRST BROKEN MESSAGE', () => {
