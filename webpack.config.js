@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyFilePlugin = require("copy-webpack-plugin");
 
 module.exports = {
   mode: 'development',
@@ -36,6 +37,15 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './src/enigmaISimulator/index.html',
       filename: 'enigmaISimulator/index.html'
+    }),
+    new CopyFilePlugin({
+      patterns: [
+        {
+          context: path.resolve(__dirname, "src"),
+          from: "**/*.pdf",
+          to: path.resolve(__dirname, "dist")
+        }
+      ]
     })
   ]
 };
